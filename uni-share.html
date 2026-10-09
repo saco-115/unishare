@@ -1,0 +1,448 @@
+
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ユニ・シェア (Uni-Share) - 完全機能版</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        sage: {
+                            50: '#f4f7f6',
+                            100: '#e2ece9',
+                            500: '#52796F',
+                            600: '#3F5E55',
+                            700: '#354F52',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-sage-50 text-slate-800 font-sans antialiased pb-24 select-none">
+
+    <!-- モバイルヘッダー -->
+    <header class="bg-white/90 backdrop-blur-md border-b border-sage-100 sticky top-0 z-40 px-4 py-3 flex justify-between items-center shadow-xs">
+        <div class="flex items-center space-x-2">
+            <div class="bg-sage-500 text-white p-1.5 rounded-lg shadow-sm">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
+            </div>
+            <h1 id="header-title" class="text-base font-bold text-sage-700 tracking-tight">ユニ・シェア (ホーム)</h1>
+        </div>
+        
+        <div class="flex items-center bg-sage-100 text-sage-700 px-3 py-1 rounded-full font-semibold text-xs shadow-inner">
+            <span>💎 <span id="user-points">120</span>pt</span>
+        </div>
+    </header>
+
+    <!-- メインコンテンツ -->
+    <main class="max-w-md mx-auto px-4 py-4 space-y-4">
+
+        <!-- VIEW 1: ホーム -->
+        <div id="view-home" class="space-y-4">
+            <div class="flex space-x-1 bg-sage-100/70 p-1 rounded-xl text-xs font-medium">
+                <button onclick="filterPosts('all')" id="btn-all" class="filter-btn flex-1 py-2 rounded-lg bg-white text-sage-700 shadow-xs transition text-center font-bold">すべて</button>
+                <button onclick="filterPosts('過去問・ノート共有')" id="btn-past" class="filter-btn flex-1 py-2 rounded-lg text-slate-600 transition text-center">過去問</button>
+                <button onclick="filterPosts('勉強の質問')" id="btn-question" class="filter-btn flex-1 py-2 rounded-lg text-slate-600 transition text-center">質問</button>
+                <button onclick="filterPosts('履修登録・時間割の相談')" id="btn-consult" class="filter-btn flex-1 py-2 rounded-lg text-slate-600 transition text-center">履修相談</button>
+            </div>
+            <div id="posts-container" class="space-y-3"></div>
+        </div>
+
+        <!-- VIEW 2: チャット（画像送信対応） -->
+        <div id="view-chat" class="space-y-3 hidden">
+            <div class="bg-white p-3 rounded-2xl border border-sage-100 shadow-xs flex items-center justify-between cursor-pointer hover:bg-sage-50 transition">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-full bg-sage-200 flex items-center justify-center font-bold text-sage-700 text-sm">鈴</div>
+                    <div>
+                        <h4 id="active-chat-partner" class="font-bold text-xs text-slate-800">鈴木先輩 (統計学の過去問について)</h4>
+                        <p class="text-[11px] text-slate-500 truncate">昨年度のテスト傾向をまとめておきました！</p>
+                    </div>
+                </div>
+                <span class="text-[10px] bg-sage-500 text-white px-2 py-0.5 rounded-full">新着</span>
+            </div>
+
+            <div class="bg-white rounded-2xl border border-sage-100 shadow-xs flex flex-col h-[70vh]">
+                <div class="p-3 border-b border-slate-100 flex items-center justify-between bg-sage-50/50 rounded-t-2xl">
+                    <span id="chat-room-name" class="font-bold text-xs text-sage-700">💬 鈴木先輩とのチャット</span>
+                    <span class="text-[10px] text-emerald-600 font-medium">● オンライン</span>
+                </div>
+
+                <!-- メッセージ表示エリア -->
+                <div id="chat-messages" class="flex-1 p-3 overflow-y-auto space-y-3 text-xs">
+                    <div class="flex justify-start">
+                        <div class="bg-slate-100 text-slate-700 p-2.5 rounded-2xl rounded-tl-none max-w-[80%]">こんにちは！統計学の過去問気になってくれてありがとう。</div>
+                    </div>
+                </div>
+
+                <!-- チャット入力欄 ＆ 画像添付フォーム -->
+                <div class="p-3 border-t border-slate-100 bg-white rounded-b-2xl space-y-2">
+                    <form id="chat-form" onsubmit="sendChatMessage(event)" class="flex gap-2 items-center">
+                        <!-- チャット内画像ファイル選択 -->
+                        <label class="cursor-pointer bg-sage-50 hover:bg-sage-100 text-sage-700 p-2 rounded-xl border border-sage-200 flex items-center justify-center text-sm transition" title="画像を送信">
+                            📷
+                            <input type="file" id="chat-file-input" accept="image/*" class="hidden" onchange="previewChatFile(this)">
+                        </label>
+                        <input type="text" id="chat-input" placeholder="メッセージを入力..." class="flex-1 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:ring-2 focus:ring-sage-500 bg-slate-50 outline-none">
+                        <button type="submit" class="bg-sage-500 hover:bg-sage-600 text-white font-bold px-4 py-2 rounded-xl text-xs shadow-sm transition">送信</button>
+                    </form>
+                    <!-- 添付画像のプレビュー表示エリア -->
+                    <div id="chat-file-preview" class="hidden flex items-center justify-between bg-sage-50 px-2.5 py-1.5 rounded-xl border border-sage-200 text-[11px]">
+                        <span id="chat-file-name" class="text-sage-700 truncate"></span>
+                        <button type="button" onclick="clearChatFile()" class="text-rose-500 font-bold px-1">✕</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW 3: マイページ -->
+        <div id="view-mypage" class="space-y-4 hidden">
+            <div class="bg-white p-5 rounded-2xl border border-sage-100 shadow-xs text-center space-y-3">
+                <div class="w-16 h-16 bg-sage-200 rounded-full mx-auto flex items-center justify-center text-xl font-bold text-sage-700 shadow-inner">私</div>
+                <div>
+                    <h3 class="font-bold text-sm text-slate-800">あなた（ログイン中の学生）</h3>
+                    <p class="text-[11px] text-slate-500">大学メール認証済み (.ac.jp)</p>
+                </div>
+                
+                <div class="inline-block bg-amber-50 border border-amber-200 text-amber-700 text-[10px] font-bold px-3 py-1 rounded-full">
+                    🌟 称号：シルバー・サポーター
+                </div>
+
+                <div class="grid grid-cols-3 gap-2 pt-2 text-center">
+                    <div class="bg-sage-50 p-2.5 rounded-xl border border-sage-100">
+                        <div class="text-xs text-slate-500">シェア数</div>
+                        <div id="stat-shares" class="font-bold text-sage-700 text-sm">1回</div>
+                    </div>
+                    <div class="bg-sage-50 p-2.5 rounded-xl border border-sage-100">
+                        <div class="text-xs text-slate-500">保有ポイント</div>
+                        <div id="stat-points" class="font-bold text-sage-700 text-sm">120 pt</div>
+                    </div>
+                    <div class="bg-sage-50 p-2.5 rounded-xl border border-sage-100">
+                        <div class="text-xs text-slate-500">お礼thanks</div>
+                        <div class="font-bold text-sage-700 text-sm">5回</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white p-4 rounded-2xl border border-sage-100 shadow-xs space-y-3">
+                <h4 class="font-bold text-xs text-sage-700 flex items-center">
+                    <span class="mr-1.5">📜</span> ポイント獲得・利用履歴
+                </h4>
+                <div id="points-history-list" class="space-y-2 text-xs"></div>
+            </div>
+
+            <button onclick="resetLocalStorage()" class="w-full bg-rose-50 hover:bg-rose-100 text-rose-600 font-semibold py-2.5 rounded-xl text-xs transition border border-rose-200">
+                データを初期状態に戻す（リセット）
+            </button>
+        </div>
+
+    </main>
+
+    <!-- 新規投稿モーダル -->
+    <div id="post-modal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-end sm:items-center justify-center p-0 sm:p-4 backdrop-blur-xs">
+        <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-2xl p-6 shadow-xl space-y-4 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                <h2 class="font-bold text-sage-700 text-base">✍️ 新規投稿・相談する</h2>
+                <button onclick="toggleModal(false)" class="text-slate-400 font-bold px-2">✕</button>
+            </div>
+            
+            <form id="post-form" class="space-y-3">
+                <div>
+                    <label class="block text-xs font-medium text-slate-600 mb-1">ポストの種類</label>
+                    <select id="post-type" class="w-full border border-slate-200 rounded-xl p-2.5 text-xs bg-slate-50">
+                        <option value="過去問・ノート共有">📁 過去問・ノート共有 (+50pt)</option>
+                        <option value="勉強の質問">❓ 勉強の質問</option>
+                        <option value="履修登録・時間割の相談">📅 履修登録・時間割の相談</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-slate-600 mb-1">タイトル</label>
+                    <input type="text" id="post-title" required placeholder="例：経済学概論 中間テスト過去問" class="w-full border border-slate-200 rounded-xl p-2.5 text-xs bg-slate-50">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-slate-600 mb-1">詳細・内容</label>
+                    <textarea id="post-desc" required rows="3" placeholder="詳細を記入..." class="w-full border border-slate-200 rounded-xl p-2.5 text-xs bg-slate-50"></textarea>
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-slate-600 mb-1">📎 資料・画像を添付 (任意)</label>
+                    <input type="file" id="post-file" accept="image/*,.pdf" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-sage-100 file:text-sage-700 hover:file:bg-sage-200 cursor-pointer">
+                </div>
+                <button type="submit" class="w-full bg-sage-500 text-white font-bold py-3 rounded-xl text-xs shadow-md">投稿する</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- モバイル下部ナビゲーションバー -->
+    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-sage-100 py-2 px-6 flex justify-around items-center z-40 shadow-lg">
+        <button onclick="switchTab('home', this)" class="nav-btn flex flex-col items-center text-sage-600 text-[10px] font-bold">
+            <span class="text-lg">🏠</span>ホーム
+        </button>
+        <button onclick="switchTab('chat', this)" class="nav-btn flex flex-col items-center text-slate-400 text-[10px]">
+            <span class="text-lg">💬</span>チャット
+        </button>
+        <button onclick="toggleModal(true)" class="flex flex-col items-center text-white bg-sage-500 hover:bg-sage-600 px-4 py-2 rounded-2xl shadow-md -mt-5 transition">
+            <span class="text-xl font-bold leading-none">+</span>
+            <span class="text-[10px] mt-0.5">投稿</span>
+        </button>
+        <button onclick="switchTab('mypage', this)" class="nav-btn flex flex-col items-center text-slate-400 text-[10px]">
+            <span class="text-lg">👤</span>マイページ
+        </button>
+    </nav>
+
+    <!-- JavaScript -->
+    <script>
+        const defaultPosts = [
+            { id: 1, type: '過去問・ノート共有', title: '【2025年度】統計学概論 期末テスト過去問+解答', desc: '昨年度の期末テスト対策ノートのセットです！', author: '鈴木先輩', date: '10/08', fileName: '統計学_過去問2025.pdf', points: 50 },
+            { id: 2, type: '履修登録・時間割の相談', title: '木曜「プログラミング言語論」は初心者でも大丈夫？', desc: '春学期の履修で迷っています。教えてください。', author: '佐藤', date: '10/09', fileName: null, points: 0 }
+        ];
+
+        const defaultHistory = [
+            { title: '初期付与ポイント', change: '+120 pt', date: '10/01', type: 'plus' },
+            { title: '過去問閲覧の消費', change: '-30 pt', date: '10/05', type: 'minus' },
+            { title: '過去問シェア報酬', change: '+50 pt', date: '10/08', type: 'plus' }
+        ];
+
+        let posts = JSON.parse(localStorage.getItem('unishare_posts')) || defaultPosts;
+        let userPoints = parseInt(localStorage.getItem('unishare_points')) || 120;
+        let pointHistory = JSON.parse(localStorage.getItem('unishare_history')) || defaultHistory;
+        let currentFilter = 'all';
+        let selectedChatFile = null;
+
+        function saveData() {
+            localStorage.setItem('unishare_posts', JSON.stringify(posts));
+            localStorage.setItem('unishare_points', userPoints);
+            localStorage.setItem('unishare_history', JSON.stringify(pointHistory));
+        }
+
+        function updateUI() {
+            document.getElementById('user-points').innerText = userPoints;
+            const statPoints = document.getElementById('stat-points');
+            if(statPoints) statPoints.innerText = userPoints + ' pt';
+
+            const historyContainer = document.getElementById('points-history-list');
+            if(historyContainer) {
+                historyContainer.innerHTML = '';
+                pointHistory.forEach(item => {
+                    const colorClass = item.type === 'plus' ? 'text-emerald-600 bg-emerald-50' : 'text-rose-600 bg-rose-50';
+                    const row = document.createElement('div');
+                    row.className = 'flex justify-between items-center p-2 rounded-xl bg-slate-50 border border-slate-100';
+                    row.innerHTML = `
+                        <div>
+                            <div class="font-medium text-slate-800">${item.title}</div>
+                            <div class="text-[10px] text-slate-400">${item.date}</div>
+                        </div>
+                        <span class="font-bold px-2 py-1 rounded-lg text-xs ${colorClass}">${item.change}</span>
+                    `;
+                    historyContainer.appendChild(row);
+                });
+            }
+        }
+
+        function renderPosts() {
+            const container = document.getElementById('posts-container');
+            container.innerHTML = '';
+            const filtered = currentFilter === 'all' ? posts : posts.filter(p => p.type === currentFilter);
+
+            filtered.forEach(post => {
+                let badgeClass = 'bg-sage-100 text-sage-700';
+                if (post.type === '勉強の質問') badgeClass = 'bg-amber-100 text-amber-700';
+                if (post.type === '履修登録・時間割の相談') badgeClass = 'bg-sky-100 text-sky-700';
+
+                let fileBadge = '';
+                if(post.fileName) {
+                    fileBadge = `<div class="mt-2 inline-flex items-center gap-1.5 bg-sage-50 text-sage-700 text-[10px] px-2.5 py-1 rounded-lg border border-sage-200 font-medium">📎 ${post.fileName}</div>`;
+                }
+
+                // 過去問共有の場合は閲覧にポイント消費機能を連動
+                let actionBtn = `<button onclick="switchTabToChat('${post.author}')" class="bg-sage-50 text-sage-700 font-semibold px-2.5 py-1 rounded-lg border border-sage-200">相談・チャットする</button>`;
+                if(post.type === '過去問・ノート共有') {
+                    actionBtn = `<button onclick="accessPastExam('${post.title}')" class="bg-sage-500 hover:bg-sage-600 text-white font-semibold px-2.5 py-1 rounded-lg transition shadow-2xs">📥 閲覧・ダウンロード (-30pt)</button>`;
+                }
+
+                const card = document.createElement('div');
+                card.className = 'bg-white p-4 rounded-2xl shadow-xs border border-sage-100 space-y-2';
+                card.innerHTML = `
+                    <div class="flex justify-between items-center">
+                        <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full ${badgeClass}">${post.type}</span>
+                        <span class="text-[10px] text-slate-400">${post.date}</span>
+                    </div>
+                    <h3 class="font-bold text-slate-800 text-sm leading-snug">${post.title}</h3>
+                    <p class="text-xs text-slate-600 leading-relaxed">${post.desc}</p>
+                    ${fileBadge}
+                    <div class="flex justify-between items-center pt-2 border-t border-slate-50 text-[11px] text-slate-500">
+                        <span class="font-medium text-slate-700">👤 ${post.author}</span>
+                        ${actionBtn}
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // 過去問閲覧時のポイント消費ロジック
+        function accessPastExam(title) {
+            const cost = 30;
+            if(userPoints < cost) {
+                alert(`⚠️ ポイントが不足しています（現在 ${userPoints}pt）。過去問を閲覧するにはあと ${cost - userPoints}pt 必要です。何かシェアしてポイントを貯めましょう！`);
+                return;
+            }
+
+            if(confirm(`「${title}」を閲覧・ダウンロードしますか？\n（30ポイント消費します）`)) {
+                userPoints -= cost;
+                pointHistory.unshift({ title: '過去問閲覧 (' + title.slice(0,10) + '...)', change: '-30 pt', date: '今日', type: 'minus' });
+                saveData();
+                updateUI();
+                renderPosts();
+                alert('📥 過去問のダウンロードが完了しました！');
+            }
+        }
+
+        function switchTab(tabName, btnElement) {
+            document.getElementById('view-home').classList.add('hidden');
+            document.getElementById('view-chat').classList.add('hidden');
+            document.getElementById('view-mypage').classList.add('hidden');
+
+            document.getElementById('view-' + tabName).classList.remove('hidden');
+
+            const titles = { home: 'ユニ・シェア (ホーム)', chat: 'ユニ・シェア (チャット)', mypage: 'ユニ・シェア (マイページ)' };
+            document.getElementById('header-title').innerText = titles[tabName];
+
+            document.querySelectorAll('.nav-btn').forEach(b => b.className = 'nav-btn flex flex-col items-center text-slate-400 text-[10px]');
+            if(btnElement) btnElement.className = 'nav-btn flex flex-col items-center text-sage-600 text-[10px] font-bold';
+        }
+
+        function switchTabToChat(authorName = '鈴木先輩') {
+            document.getElementById('active-chat-partner').innerText = `${authorName} (チャット中)`;
+            document.getElementById('chat-room-name').innerText = `💬 ${authorName}とのチャット`;
+            const chatNavBtn = document.querySelectorAll('.nav-btn')[1];
+            switchTab('chat', chatNavBtn);
+        }
+
+        // チャットファイル添付のプレビュー
+        function previewChatFile(input) {
+            if(input.files && input.files[0]) {
+                selectedChatFile = input.files[0];
+                document.getElementById('chat-file-name').innerText = `📎 ${selectedChatFile.name}`;
+                document.getElementById('chat-file-preview').classList.remove('hidden');
+            }
+        }
+
+        function clearChatFile() {
+            selectedChatFile = null;
+            document.getElementById('chat-file-input').value = '';
+            document.getElementById('chat-file-preview').classList.add('hidden');
+        }
+
+        // チャット送信処理（画像対応）
+        function sendChatMessage(e) {
+            e.preventDefault();
+            const input = document.getElementById('chat-input');
+            const text = input.value.trim();
+            if(!text && !selectedChatFile) return;
+
+            const chatMessages = document.getElementById('chat-messages');
+            
+            let fileContentHtml = '';
+            if(selectedChatFile) {
+                fileContentHtml = `<div class="mt-1 font-semibold text-[10px] underline">📎 添付画像: ${selectedChatFile.name}</div>`;
+            }
+
+            // 自分のメッセージを追加
+            const msg = document.createElement('div');
+            msg.className = 'flex justify-end';
+            msg.innerHTML = `<div class="bg-sage-500 text-white p-2.5 rounded-2xl rounded-tr-none max-w-[80%]">${text}${fileContentHtml}</div>`;
+            chatMessages.appendChild(msg);
+
+            input.value = '';
+            clearChatFile();
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+
+            // 簡易的な返信モック
+            setTimeout(() => {
+                const reply = document.createElement('div');
+                reply.className = 'flex justify-start';
+                reply.innerHTML = `<div class="bg-slate-100 text-slate-700 p-2.5 rounded-2xl rounded-tl-none max-w-[80%]">画像とメッセージを受け取りました！ありがとうございます！</div>`;
+                chatMessages.appendChild(reply);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }, 1000);
+        }
+
+        function toggleModal(show) {
+            document.getElementById('post-modal').classList.toggle('hidden', !show);
+        }
+
+        document.getElementById('post-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const type = document.getElementById('post-type').value;
+            const title = document.getElementById('post-title').value;
+            const fileInput = document.getElementById('post-file');
+            const fileName = fileInput.files.length > 0 ? fileInput.files[0].name : null;
+
+            posts.unshift({
+                id: Date.now(),
+                type: type,
+                title: title,
+                desc: document.getElementById('post-desc').value,
+                author: 'あなた',
+                date: '今日',
+                fileName: fileName,
+                points: 50
+            });
+
+            if (type === '過去問・ノート共有') {
+                userPoints += 50;
+                pointHistory.unshift({ title: '過去問シェア報酬 (' + title.slice(0,10) + '...)', change: '+50 pt', date: '今日', type: 'plus' });
+                alert('🎉 過去問をシェアしました！ +50pt獲得！');
+            } else {
+                pointHistory.unshift({ title: '質問・相談の投稿', change: '0 pt', date: '今日', type: 'plus' });
+                alert('✨ 投稿が完了しました！');
+            }
+
+            saveData();
+            updateUI();
+            document.getElementById('post-form').reset();
+            toggleModal(false);
+            filterPosts('all');
+        });
+
+        function filterPosts(type) {
+            currentFilter = type;
+            ['all', 'past', 'question', 'consult'].forEach((id, index) => {
+                const btnKeys = ['all', '過去問・ノート共有', '勉強の質問', '履修登録・時間割の相談'];
+                const btn = document.querySelectorAll('.filter-btn')[index];
+                if(btnKeys[index] === type) {
+                    btn.className = 'filter-btn flex-1 py-2 rounded-lg bg-white text-sage-700 shadow-xs transition text-center text-xs font-bold';
+                } else {
+                    btn.className = 'filter-btn flex-1 py-2 rounded-lg text-slate-600 transition text-center text-xs';
+                }
+            });
+            renderPosts();
+        }
+
+        function resetLocalStorage() {
+            if(confirm('データを初期状態に戻しますか？')) {
+                localStorage.clear();
+                posts = [...defaultPosts];
+                userPoints = 120;
+                pointHistory = [...defaultHistory];
+                saveData();
+                updateUI();
+                renderPosts();
+                alert('リセットしました。');
+            }
+        }
+
+        updateUI();
+        renderPosts();
+    </script>
+</body>
+</html>
+
