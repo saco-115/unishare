@@ -84,7 +84,7 @@
             </div>
         </div>
 
-        <!-- VIEW 2: チャット (LINE風 トーク一覧 ＆ 個別トークルーム) -->
+        <!-- VIEW 2: チャット -->
         <div id="view-chat" class="space-y-3 hidden">
             <!-- トーク一覧画面 -->
             <div id="chat-list-view" class="space-y-2">
@@ -94,7 +94,7 @@
                 </div>
             </div>
 
-            <!-- 個別チャットルーム画面 (最初は隠す) -->
+            <!-- 個別チャットルーム画面 -->
             <div id="chat-room-view" class="bg-white rounded-2xl border border-sage-100 shadow-xs flex flex-col h-[72vh] hidden">
                 <div class="p-3 border-b border-slate-100 flex items-center justify-between bg-sage-50/50 rounded-t-2xl text-xs">
                     <button onclick="backToChatList()" class="text-sage-600 font-bold hover:underline">◀ 戻る</button>
@@ -103,7 +103,7 @@
                 </div>
 
                 <div id="chat-messages" class="flex-1 p-3 overflow-y-auto space-y-3 text-xs">
-                    <!-- メッセージがここに表示されます -->
+                    <!-- メッセージ -->
                 </div>
 
                 <div class="p-3 border-t border-slate-100 bg-white rounded-b-2xl">
@@ -282,7 +282,7 @@
         </div>
     </div>
 
-    <!-- 🔍 投稿詳細モーダル (学部・学年を表示) -->
+    <!-- 🔍 投稿詳細モーダル -->
     <div id="detail-modal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-xs">
         <div class="bg-white w-full max-w-md rounded-2xl p-6 shadow-xl space-y-4 max-h-[85vh] overflow-y-auto">
             <div class="flex justify-between items-center border-b border-slate-100 pb-3">
@@ -328,8 +328,7 @@
     <!-- ▼▼▼ Supabase & アプリケーションロジック ▼▼▼ -->
     <script>
         // 🔴🔴 ここにご自身のSupabase情報をセットしてください 🔴🔴
-        const SUPABASE_URL = 'https://qirddzdxyfdzgmckjbkt.supabase.co
-';
+        const SUPABASE_URL = 'https://qirddzdxyfdzgmckjbkt.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_cbZUYYvEy2IdTEOH495zAw_uGhTKsci';
         // 🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴
 
@@ -338,7 +337,7 @@
         let currentFilter = 'all';
         let isSignUpMode = false;
         let currentUser = null;
-        let currentActiveRoomId = null; // 現在開いているチャットルームID
+        let currentActiveRoomId = null;
 
         window.addEventListener('DOMContentLoaded', async () => {
             await checkSession();
@@ -374,11 +373,20 @@
         async function loadProfileData(user) {
             document.getElementById('profile-email').innerText = user.email;
             
-            const { data: profile } = await supabaseClient
+            let { data: profile, error } = await supabaseClient
                 .from('profiles')
                 .select('*')
                 .eq('id', user.id)
                 .single();
+
+            if (!profile) {
+                const { data: newProfile } = await supabaseClient
+                    .from('profiles')
+                    .insert([{ id: user.id, display_name: '名無しさん', points: 500 }])
+                    .select()
+                    .single();
+                profile = newProfile;
+            }
 
             if (profile) {
                 document.getElementById('profile-name').innerText = profile.display_name || '名無しさん';
@@ -476,13 +484,14 @@
                     }
                 } else {
                     if (data.user) {
+                        await supabaseClient.from('profiles').insert([{ id: data.user.id, display_name: '名無しさん', points: 500 }]);
                         await supabaseClient.from('point_history').insert([{
                             user_id: data.user.id,
                             amount: 500,
                             reason: '新規登録ボーナス（500pt）'
                         }]);
                     }
-                    alert('登録成功！確認メールを送信しました。');
+                    alert('登録成功しました！');
                 }
             } else {
                 const { error } = await supabaseClient.auth.signInWithPassword({
@@ -589,7 +598,7 @@
 
             container.innerHTML = '';
             profiles.forEach(p => {
-                if (currentUser && p.id === currentUser.id) return; // 自分は除外
+                if (currentUser && p.id === currentUser.id) return;
                 const name = p.display_name || '名無しさん';
                 const faculty = p.faculty || '学部未設定';
                 const grade = p.grade || '学年';
@@ -612,14 +621,12 @@
             });
         }
 
-        // 💬 LINE風チャット・マッチング処理
         async function startDirectChat(partnerId, partnerName) {
             if (currentUser && partnerId === currentUser.id) {
                 alert('自分自身とはマッチングできません。');
                 return;
             }
 
-            // 既存のチャットルームがあるか確認、なければ新規作成
             let { data: existingRoom } = await supabaseClient
                 .from('chat_rooms')
                 .select('*')
@@ -744,7 +751,6 @@
             await loadChatMessages(currentActiveRoomId);
         }
 
-        // 📥 投稿一覧の取得
         async function fetchPosts() {
             let query = supabaseClient.from('posts').select('*').order('created_at', { ascending: false });
 
@@ -794,14 +800,12 @@
             });
         }
 
-        // 🔍 詳細モーダルを開く（投稿者の学部・学年も表示）
         async function openDetailModal(post) {
             document.getElementById('detail-tag').innerText = post.post_type || '投稿';
             document.getElementById('detail-title').innerText = post.title;
             document.getElementById('detail-content').innerText = post.content;
             document.getElementById('detail-date').innerText = new Date(post.created_at).toLocaleString('ja-JP');
 
-            // 投稿者のプロフィール情報を取得して表示
             const { data: authorProfile } = await supabaseClient
                 .from('profiles')
                 .select('display_name, faculty, grade')
@@ -827,7 +831,6 @@
             document.getElementById('detail-modal').classList.toggle('hidden', !show);
         }
 
-        // 📝 新規投稿（ポイント消費制）
         async function handleCreatePost(e) {
             e.preventDefault();
             if (!currentUser) {
@@ -914,7 +917,7 @@
                 fetchPosts();
                 loadRecommendedSupporters();
             } else if(tabName === 'chat') {
-                backToChatList(); // チャットタブを開いたときはトーク一覧を表示
+                backToChatList();
             } else if(tabName === 'mypage' && currentUser) {
                 loadProfileData(currentUser);
             }
