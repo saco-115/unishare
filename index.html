@@ -627,6 +627,15 @@
                 return;
             }
 
+            // データベースから相手の最新の「表示名」を確実に取得する
+            let { data: partnerProfile } = await supabaseClient
+                .from('profiles')
+                .select('display_name')
+                .eq('id', partnerId)
+                .single();
+
+            const correctPartnerName = partnerProfile?.display_name || partnerName || 'チャット相手';
+
             let { data: existingRoom } = await supabaseClient
                 .from('chat_rooms')
                 .select('*')
@@ -638,7 +647,11 @@
             if (!roomId) {
                 const { data: newRoom, error } = await supabaseClient
                     .from('chat_rooms')
-                    .insert([{ user1_id: currentUser.id, user2_id: partnerId, partner_name: partnerName }])
+                    .insert([{ 
+                        user1_id: currentUser.id, 
+                        user2_id: partnerId, 
+                        partner_name: correctPartnerName 
+                    }])
                     .select()
                     .single();
 
@@ -647,9 +660,15 @@
                     return;
                 }
                 roomId = newRoom.id;
+            } else {
+                // すでにルームがある場合は、名前がずれていれば最新に更新
+                await supabaseClient
+                    .from('chat_rooms')
+                    .update({ partner_name: correctPartnerName })
+                    .eq('id', roomId);
             }
 
-            openChatRoom(roomId, partnerName);
+            openChatRoom(roomId, correctPartnerName);
         }
 
         async function loadChatRooms() {
