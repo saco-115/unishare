@@ -36,10 +36,11 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                 </svg>
             </div>
-            <h1 id="header-title" class="text-base font-bold text-sage-700 tracking-tight">ユニ・シェア (マイページ)</h1>
+            <h1 id="header-title" class="text-base font-bold text-sage-700 tracking-tight">ユニ・シェア (ログイン)</h1>
         </div>
         
-        <div class="flex items-center bg-sage-100 text-sage-700 px-3 py-1 rounded-full font-semibold text-xs shadow-inner">
+        <!-- ログイン中のみポイントを表示 -->
+        <div id="header-points-area" class="flex items-center bg-sage-100 text-sage-700 px-3 py-1 rounded-full font-semibold text-xs shadow-inner hidden">
             <span>💎 <span id="user-points">120</span>pt</span>
         </div>
     </header>
@@ -94,7 +95,7 @@
             </div>
         </div>
 
-        <!-- VIEW 3: マイページ ＆ ログイン (最初から表示) -->
+        <!-- VIEW 3: マイページ ＆ ログイン -->
         <div id="view-mypage" class="space-y-4">
             
             <!-- 🔑 ログイン・登録フォーム (未ログイン時) -->
@@ -196,8 +197,8 @@
         </div>
     </div>
 
-    <!-- モバイル下部ナビゲーションバー -->
-    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-sage-100 py-2 px-6 flex justify-around items-center z-40 shadow-lg">
+    <!-- モバイル下部ナビゲーションバー (未ログイン時は非表示) -->
+    <nav id="bottom-nav" class="fixed bottom-0 left-0 right-0 bg-white border-t border-sage-100 py-2 px-6 flex justify-around items-center z-40 shadow-lg hidden">
         <button onclick="switchTab('home', this)" class="nav-btn flex flex-col items-center text-slate-400 text-[10px]">
             <span class="text-lg">🏠</span>ホーム
         </button>
@@ -215,10 +216,8 @@
 
     <!-- ▼▼▼ Supabase & アプリケーションロジック ▼▼▼ -->
     <script>
-        // 🔴🔴 ここにご自身のSupabase情報をセットしてください 🔴🔴
         const SUPABASE_URL = 'https://qirddzdxyfdzgmckjbkt.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_cbZUYYvEy2IdTEOH495zAw_uGhTKsci';
-        // 🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴
 
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -226,27 +225,36 @@
         let isSignUpMode = false;
         let currentUser = null;
 
-        // 初期化処理（最初はマイページタブを表示）
+        // 初期化処理
         window.addEventListener('DOMContentLoaded', async () => {
             await checkSession();
-            switchTab('mypage', document.querySelectorAll('.nav-btn')[3]);
         });
 
-        // 🟢 ログイン状態の確認
+        // 🟢 ログイン状態の確認（未ログインなら下部バーを隠し、ログイン画面を強制表示）
         async function checkSession() {
             const { data: { session } } = await supabaseClient.auth.getSession();
             const authContainer = document.getElementById('auth-container');
             const profileContainer = document.getElementById('profile-container');
+            const bottomNav = document.getElementById('bottom-nav');
+            const headerPointsArea = document.getElementById('header-points-area');
 
             if (session) {
                 currentUser = session.user;
                 authContainer.classList.add('hidden');
                 profileContainer.classList.remove('hidden');
+                bottomNav.classList.remove('hidden');
+                headerPointsArea.classList.remove('hidden');
+                
                 await loadProfileData(session.user);
+                switchTab('home', document.querySelectorAll('.nav-btn')[0]);
             } else {
                 currentUser = null;
                 authContainer.classList.remove('hidden');
                 profileContainer.classList.add('hidden');
+                bottomNav.classList.add('hidden'); // 未ログイン時は下部バーを隠す
+                headerPointsArea.classList.add('hidden');
+                
+                switchTab('mypage', null); // 未ログイン時はマイページ（ログイン画面）を強制
             }
         }
 
@@ -496,8 +504,12 @@
             }
         }
 
-        // 🔀 タブ切り替え制御
+        // 🔀 タブ切り替え制御（未ログイン時はマイページ以外への移動をブロック）
         function switchTab(tabName, btnElement) {
+            if (!currentUser && tabName !== 'mypage') {
+                return;
+            }
+
             document.getElementById('view-home').classList.add('hidden');
             document.getElementById('view-chat').classList.add('hidden');
             document.getElementById('view-mypage').classList.add('hidden');
@@ -507,8 +519,10 @@
             const titles = { home: 'ユニ・シェア (ホーム)', chat: 'ユニ・シェア (チャット)', mypage: 'ユニ・シェア (マイページ)' };
             document.getElementById('header-title').innerText = titles[tabName];
 
-            document.querySelectorAll('.nav-btn').forEach(b => b.className = 'nav-btn flex flex-col items-center text-slate-400 text-[10px]');
-            if(btnElement) btnElement.className = 'nav-btn flex flex-col items-center text-sage-600 text-[10px] font-bold';
+            if (currentUser && btnElement) {
+                document.querySelectorAll('.nav-btn').forEach(b => b.className = 'nav-btn flex flex-col items-center text-slate-400 text-[10px]');
+                btnElement.className = 'nav-btn flex flex-col items-center text-sage-600 text-[10px] font-bold';
+            }
             
             if(tabName === 'home') {
                 fetchPosts();
@@ -548,6 +562,7 @@
         }
 
         function toggleModal(show) {
+            if (!currentUser) return;
             document.getElementById('post-modal').classList.toggle('hidden', !show);
         }
     </script>
