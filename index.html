@@ -39,7 +39,6 @@
             <h1 id="header-title" class="text-base font-bold text-sage-700 tracking-tight">ユニ・シェア (ログイン)</h1>
         </div>
         
-        <!-- ログイン中のみポイントを表示 -->
         <div id="header-points-area" class="flex items-center bg-sage-100 text-sage-700 px-3 py-1 rounded-full font-semibold text-xs shadow-inner hidden">
             <span>💎 <span id="user-points">120</span>pt</span>
         </div>
@@ -48,42 +47,66 @@
     <!-- メインコンテンツ -->
     <main class="max-w-md mx-auto px-4 py-4 space-y-4">
 
-        <!-- VIEW 1: ホーム (投稿一覧) -->
+        <!-- VIEW 1: ホーム (おすすめサポーター ＆ 投稿一覧) -->
         <div id="view-home" class="space-y-4 hidden">
-            <div class="flex space-x-1 bg-sage-100/70 p-1 rounded-xl text-xs font-medium">
-                <button onclick="filterPosts('all')" id="btn-all" class="filter-btn flex-1 py-2 rounded-lg bg-white text-sage-700 shadow-xs transition text-center font-bold">すべて</button>
-                <button onclick="filterPosts('過去問・ノート共有')" id="btn-past" class="filter-btn flex-1 py-2 rounded-lg text-slate-600 transition text-center">過去問</button>
-                <button onclick="filterPosts('勉強の質問')" id="btn-question" class="filter-btn flex-1 py-2 rounded-lg text-slate-600 transition text-center">質問</button>
-                <button onclick="filterPosts('履修登録・時間割の相談')" id="btn-consult" class="filter-btn flex-1 py-2 rounded-lg text-slate-600 transition text-center">履修相談</button>
+            
+            <!-- ⭐ おすすめ・教育学部のサポーターセクション -->
+            <div class="space-y-2">
+                <div class="flex justify-between items-center">
+                    <h3 class="font-bold text-xs text-sage-700 flex items-center gap-1">🌟 おすすめ・人気のサポーター</h3>
+                    <span class="text-[10px] text-slate-400">横スクロール ➔</span>
+                </div>
+                
+                <!-- サポーターカード横スクロールコンテナ -->
+                <div id="recommended-supporters-container" class="flex gap-3 overflow-x-auto pb-2 scrollbar-none">
+                    <div class="bg-white p-3 rounded-2xl border border-sage-100 shadow-xs shrink-0 w-44 text-center space-y-2">
+                        <div class="w-10 h-10 bg-sage-200 rounded-full mx-auto flex items-center justify-center font-bold text-sage-700 text-sm">教</div>
+                        <div>
+                            <p class="font-bold text-xs text-slate-800 truncate">教育の先輩</p>
+                            <p class="text-[10px] text-sage-600">教育学部 / 3年</p>
+                        </div>
+                        <span class="inline-block text-[9px] bg-amber-50 text-amber-700 font-bold px-2 py-0.5 rounded-full border border-amber-200">⭐ 4.9 (人気)</span>
+                        <button onclick="startDirectChat('教育の先輩')" class="w-full bg-sage-500 hover:bg-sage-600 text-white font-bold py-1.5 rounded-xl text-[10px] transition">相談する</button>
+                    </div>
+                </div>
             </div>
+
+            <!-- 投稿フィルタータブ -->
+            <div class="flex space-x-1 bg-sage-100/70 p-1 rounded-xl text-[11px] font-medium overflow-x-auto">
+                <button onclick="filterPosts('all')" id="btn-all" class="filter-btn shrink-0 px-3 py-2 rounded-lg bg-white text-sage-700 shadow-xs transition text-center font-bold">すべて</button>
+                <button onclick="filterPosts('過去問・ノート共有')" id="btn-past" class="filter-btn shrink-0 px-3 py-2 rounded-lg text-slate-600 transition text-center">過去問</button>
+                <button onclick="filterPosts('勉強の質問')" id="btn-question" class="filter-btn shrink-0 px-3 py-2 rounded-lg text-slate-600 transition text-center">質問</button>
+                <button onclick="filterPosts('履修登録・時間割の相談')" id="btn-consult" class="filter-btn shrink-0 px-3 py-2 rounded-lg text-slate-600 transition text-center">履修相談</button>
+                <button onclick="filterPosts('💡 教えます（サポート可能）')" id="btn-teach" class="filter-btn shrink-0 px-3 py-2 rounded-lg text-slate-600 transition text-center">教えます</button>
+                <button onclick="filterPosts('その他')" id="btn-other" class="filter-btn shrink-0 px-3 py-2 rounded-lg text-slate-600 transition text-center">その他</button>
+            </div>
+            
             <div id="posts-container" class="space-y-3">
                 <p class="text-center text-xs text-slate-400 py-6">読み込み中...</p>
             </div>
         </div>
 
-        <!-- VIEW 2: チャット (モック) -->
+        <!-- VIEW 2: チャット -->
         <div id="view-chat" class="space-y-3 hidden">
             <div class="bg-white p-3 rounded-2xl border border-sage-100 shadow-xs flex items-center justify-between">
                 <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 rounded-full bg-sage-200 flex items-center justify-center font-bold text-sage-700 text-sm">ユ</div>
+                    <div class="w-10 h-10 rounded-full bg-sage-200 flex items-center justify-center font-bold text-sage-700 text-sm">💬</div>
                     <div>
-                        <h4 id="active-chat-partner" class="font-bold text-xs text-slate-800">ユーザー (チャット)</h4>
-                        <p class="text-[11px] text-slate-500 truncate">お気軽にご相談ください！</p>
+                        <h4 id="active-chat-partner" class="font-bold text-xs text-slate-800">サポーターとのチャット</h4>
+                        <p id="active-chat-topic" class="text-[11px] text-slate-500 truncate">トピック: ピア・サポート</p>
                     </div>
                 </div>
-                <span class="text-[10px] bg-sage-500 text-white px-2 py-0.5 rounded-full">オンライン</span>
+                <span class="text-[10px] bg-emerald-500 text-white px-2 py-0.5 rounded-full">接続中</span>
             </div>
 
-            <div class="bg-white rounded-2xl border border-sage-100 shadow-xs flex flex-col h-[70vh]">
-                <div class="p-3 border-b border-slate-100 flex items-center justify-between bg-sage-50/50 rounded-t-2xl">
-                    <span id="chat-room-name" class="font-bold text-xs text-sage-700">💬 チャットルーム</span>
-                    <span class="text-[10px] text-emerald-600 font-medium">● 接続中</span>
+            <div class="bg-white rounded-2xl border border-sage-100 shadow-xs flex flex-col h-[65vh]">
+                <div class="p-3 border-b border-slate-100 flex items-center justify-between bg-sage-50/50 rounded-t-2xl text-xs">
+                    <span id="chat-room-title" class="font-bold text-sage-700">💬 サポートチャット</span>
+                    <button onclick="resetChatRoom()" class="text-[10px] text-rose-500 font-bold hover:underline">ルーム退出・切り替え</button>
                 </div>
 
                 <div id="chat-messages" class="flex-1 p-3 overflow-y-auto space-y-3 text-xs">
-                    <div class="flex justify-start">
-                        <div class="bg-slate-100 text-slate-700 p-2.5 rounded-2xl rounded-tl-none max-w-[80%]">こんにちは！チャット機能は現在開発中です。</div>
-                    </div>
+                    <div class="text-center text-slate-400 py-6 text-xs">サポーターカードや投稿からチャットを開始してください！</div>
                 </div>
 
                 <div class="p-3 border-t border-slate-100 bg-white rounded-b-2xl">
@@ -108,7 +131,7 @@
                 <form id="auth-form" onsubmit="handleAuth(event)" class="space-y-3 text-xs">
                     <div id="name-field-container" class="hidden">
                         <label class="block font-medium text-slate-600 mb-1">表示名（ニックネーム）</label>
-                        <input type="text" id="auth-display-name" placeholder="例：経済学部 鈴木" class="w-full border border-slate-200 rounded-xl p-2.5 bg-slate-50 outline-none">
+                        <input type="text" id="auth-display-name" placeholder="例：鈴木" class="w-full border border-slate-200 rounded-xl p-2.5 bg-slate-50 outline-none">
                     </div>
                     <div>
                         <label class="block font-medium text-slate-600 mb-1">メールアドレス</label>
@@ -131,7 +154,8 @@
                 <div class="w-16 h-16 bg-sage-200 rounded-full mx-auto flex items-center justify-center text-xl font-bold text-sage-700 shadow-inner">私</div>
                 <div>
                     <h3 id="profile-name" class="font-bold text-sm text-slate-800">読み込み中...</h3>
-                    <p id="profile-email" class="text-[11px] text-slate-500"></p>
+                    <p id="profile-meta" class="text-[11px] text-sage-600 font-medium mt-0.5">学部・学年未設定</p>
+                    <p id="profile-email" class="text-[11px] text-slate-400"></p>
                 </div>
                 
                 <!-- 保有ポイントカード -->
@@ -144,10 +168,56 @@
                     🌟 認証済み学生ユーザー
                 </div>
 
-                <div class="text-left pt-3 border-t border-slate-100 space-y-2 text-xs">
-                    <label class="block font-medium text-slate-600">プロフィール編集</label>
-                    <input type="text" id="edit-display-name" placeholder="表示名" class="w-full border border-slate-200 rounded-xl p-2 bg-slate-50">
-                    <textarea id="edit-bio" rows="2" placeholder="自己紹介や履修している分野など..." class="w-full border border-slate-200 rounded-xl p-2 bg-slate-50"></textarea>
+                <!-- プロフィール編集フォーム -->
+                <div class="text-left pt-3 border-t border-slate-100 space-y-2.5 text-xs">
+                    <label class="block font-bold text-slate-700">✏️ プロフィール編集</label>
+                    
+                    <div>
+                        <label class="block text-[11px] text-slate-500 mb-1">表示名</label>
+                        <input type="text" id="edit-display-name" placeholder="表示名" class="w-full border border-slate-200 rounded-xl p-2 bg-slate-50 outline-none">
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-[11px] text-slate-500 mb-1">学部</label>
+                            <select id="edit-faculty" class="w-full border border-slate-200 rounded-xl p-2 bg-slate-50 outline-none">
+                                <option value="">選択してください</option>
+                                <option value="総合科学部">総合科学部</option>
+                                <option value="文学部">文学部</option>
+                                <option value="教育学部">教育学部</option>
+                                <option value="法学部">法学部</option>
+                                <option value="経済学部">経済学部</option>
+                                <option value="理学部">理学部</option>
+                                <option value="医学部">医学部</option>
+                                <option value="歯学部">歯学部</option>
+                                <option value="薬学部">薬学部</option>
+                                <option value="工学部">工学部</option>
+                                <option value="生物生産学部">生物生産学部</option>
+                                <option value="情報科学部">情報科学部</option>
+                                <option value="その他">その他</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] text-slate-500 mb-1">学年</label>
+                            <select id="edit-grade" class="w-full border border-slate-200 rounded-xl p-2 bg-slate-50 outline-none">
+                                <option value="">選択してください</option>
+                                <option value="学部1年">学部1年</option>
+                                <option value="学部2年">学部2年</option>
+                                <option value="学部3年">学部3年</option>
+                                <option value="学部4年">学部4年</option>
+                                <option value="修士1年">修士1年</option>
+                                <option value="修士2年">修士2年</option>
+                                <option value="博士">博士</option>
+                                <option value="その他">その他</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-[11px] text-slate-500 mb-1">自己紹介・履修分野</label>
+                        <textarea id="edit-bio" rows="2" placeholder="自己紹介や履修している分野など..." class="w-full border border-slate-200 rounded-xl p-2 bg-slate-50 outline-none"></textarea>
+                    </div>
+
                     <button onclick="updateProfile()" class="w-full bg-sage-600 hover:bg-sage-700 text-white font-bold py-2 rounded-xl transition shadow-xs">保存する</button>
                 </div>
 
@@ -171,7 +241,7 @@
     <div id="post-modal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-end sm:items-center justify-center p-0 sm:p-4 backdrop-blur-xs">
         <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-2xl p-6 shadow-xl space-y-4 max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center border-b border-slate-100 pb-3">
-                <h2 class="font-bold text-sage-700 text-base">✍️ 新規投稿・相談する</h2>
+                <h2 class="font-bold text-sage-700 text-base">✍️ 新規投稿・サポート募集</h2>
                 <button onclick="toggleModal(false)" class="text-slate-400 font-bold px-2">✕</button>
             </div>
             
@@ -179,27 +249,59 @@
                 <div>
                     <label class="block text-xs font-medium text-slate-600 mb-1">ポストの種類</label>
                     <select id="post-type" class="w-full border border-slate-200 rounded-xl p-2.5 text-xs bg-slate-50">
-                        <option value="過去問・ノート共有">📁 過去問・ノート共有</option>
+                        <option value="過去問・ノート共有">📁 過去問・ノート共有 (+30pt)</option>
                         <option value="勉強の質問">❓ 勉強の質問</option>
                         <option value="履修登録・時間割の相談">📅 履修登録・時間割の相談</option>
+                        <option value="💡 教えます（サポート可能）">💡 教えます（サポート可能） (+50pt)</option>
+                        <option value="その他">📌 その他</option>
                     </select>
                 </div>
                 <div>
                     <label class="block text-xs font-medium text-slate-600 mb-1">タイトル</label>
-                    <input type="text" id="post-title" required placeholder="例：経済学概論 中間テスト過去問" class="w-full border border-slate-200 rounded-xl p-2.5 text-xs bg-slate-50">
+                    <input type="text" id="post-title" required placeholder="例：経済学概論の過去問シェア / 微分積分教えます" class="w-full border border-slate-200 rounded-xl p-2.5 text-xs bg-slate-50">
                 </div>
                 <div>
                     <label class="block text-xs font-medium text-slate-600 mb-1">詳細・内容</label>
                     <textarea id="post-desc" required rows="3" placeholder="詳細を記入..." class="w-full border border-slate-200 rounded-xl p-2.5 text-xs bg-slate-50"></textarea>
                 </div>
-                <button type="submit" class="w-full bg-sage-500 text-white font-bold py-3 rounded-xl text-xs shadow-md">投稿する (+30pt)</button>
+                <button type="submit" class="w-full bg-sage-500 text-white font-bold py-3 rounded-xl text-xs shadow-md">投稿してポイント獲得</button>
             </form>
         </div>
     </div>
 
-    <!-- モバイル下部ナビゲーションバー (未ログイン時は非表示) -->
+    <!-- 🔍 投稿詳細モーダル -->
+    <div id="detail-modal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-xs">
+        <div class="bg-white w-full max-w-md rounded-2xl p-6 shadow-xl space-y-4 max-h-[85vh] overflow-y-auto">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                <span id="detail-tag" class="text-[10px] bg-sage-100 text-sage-700 px-2.5 py-1 rounded-full font-bold">カテゴリ</span>
+                <button onclick="toggleDetailModal(false)" class="text-slate-400 font-bold px-2">✕</button>
+            </div>
+            
+            <div class="space-y-2">
+                <h3 id="detail-title" class="font-bold text-slate-800 text-base">タイトル</h3>
+                <p class="text-[11px] text-slate-400" id="detail-date-author">投稿日時・作者</p>
+                
+                <div class="bg-sage-50/70 p-3 rounded-xl border border-sage-100 text-xs text-slate-700 leading-relaxed whitespace-pre-wrap" id="detail-content">
+                    詳細内容
+                </div>
+
+                <div class="bg-amber-50 border border-amber-200 p-2.5 rounded-xl flex items-center justify-between text-xs text-amber-800">
+                    <span>🎁 このサポートで得られる報酬</span>
+                    <span class="font-bold" id="detail-reward">💎 30 pt</span>
+                </div>
+            </div>
+
+            <div class="pt-2">
+                <button id="match-chat-btn" onclick="" class="w-full bg-sage-600 hover:bg-sage-700 text-white font-bold py-3 rounded-xl text-xs shadow-md transition flex items-center justify-center gap-2">
+                    💬 この人とマッチして相談する
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- モバイル下部ナビゲーションバー -->
     <nav id="bottom-nav" class="fixed bottom-0 left-0 right-0 bg-white border-t border-sage-100 py-2 px-6 flex justify-around items-center z-40 shadow-lg hidden">
-        <button onclick="switchTab('home', this)" class="nav-btn flex flex-col items-center text-slate-400 text-[10px]">
+        <button onclick="switchTab('home', this)" class="nav-btn flex flex-col items-center text-sage-600 text-[10px] font-bold">
             <span class="text-lg">🏠</span>ホーム
         </button>
         <button onclick="switchTab('chat', this)" class="nav-btn flex flex-col items-center text-slate-400 text-[10px]">
@@ -209,28 +311,29 @@
             <span class="text-xl font-bold leading-none">+</span>
             <span class="text-[10px] mt-0.5">投稿</span>
         </button>
-        <button onclick="switchTab('mypage', this)" class="nav-btn flex flex-col items-center text-sage-600 text-[10px] font-bold">
+        <button onclick="switchTab('mypage', this)" class="nav-btn flex flex-col items-center text-slate-400 text-[10px]">
             <span class="text-lg">👤</span>マイページ
         </button>
     </nav>
 
     <!-- ▼▼▼ Supabase & アプリケーションロジック ▼▼▼ -->
     <script>
+        // 🔴🔴 ここにご自身のSupabase情報をセットしてください 🔴🔴
         const SUPABASE_URL = 'https://qirddzdxyfdzgmckjbkt.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_cbZUYYvEy2IdTEOH495zAw_uGhTKsci';
+        // 🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴
 
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let currentFilter = 'all';
         let isSignUpMode = false;
         let currentUser = null;
+        let activeMatch = null;
 
-        // 初期化処理
         window.addEventListener('DOMContentLoaded', async () => {
             await checkSession();
         });
 
-        // 🟢 ログイン状態の確認（未ログインなら下部バーを隠し、ログイン画面を強制表示）
         async function checkSession() {
             const { data: { session } } = await supabaseClient.auth.getSession();
             const authContainer = document.getElementById('auth-container');
@@ -251,14 +354,13 @@
                 currentUser = null;
                 authContainer.classList.remove('hidden');
                 profileContainer.classList.add('hidden');
-                bottomNav.classList.add('hidden'); // 未ログイン時は下部バーを隠す
+                bottomNav.classList.add('hidden');
                 headerPointsArea.classList.add('hidden');
                 
-                switchTab('mypage', null); // 未ログイン時はマイページ（ログイン画面）を強制
+                switchTab('mypage', null);
             }
         }
 
-        // 👤 プロフィール＆ポイント情報の読み込み
         async function loadProfileData(user) {
             document.getElementById('profile-email').innerText = user.email;
             
@@ -270,7 +372,14 @@
 
             if (profile) {
                 document.getElementById('profile-name').innerText = profile.display_name || '名無しさん';
+                
+                const faculty = profile.faculty || '学部未設定';
+                const grade = profile.grade || '学年未設定';
+                document.getElementById('profile-meta').innerText = `${faculty} / ${grade}`;
+
                 document.getElementById('edit-display-name').value = profile.display_name || '';
+                document.getElementById('edit-faculty').value = profile.faculty || '';
+                document.getElementById('edit-grade').value = profile.grade || '';
                 document.getElementById('edit-bio').value = profile.bio || '';
                 
                 const points = profile.points ?? 120;
@@ -281,7 +390,6 @@
             await loadPointHistory(user.id);
         }
 
-        // 📜 ポイント履歴の取得＆表示
         async function loadPointHistory(userId) {
             const container = document.getElementById('point-history-container');
             if(!container) return;
@@ -317,16 +425,17 @@
             });
         }
 
-        // ✍️ プロフィール情報の更新
         async function updateProfile() {
             if (!currentUser) return;
 
             const displayName = document.getElementById('edit-display-name').value;
+            const faculty = document.getElementById('edit-faculty').value;
+            const grade = document.getElementById('edit-grade').value;
             const bio = document.getElementById('edit-bio').value;
 
             const { error } = await supabaseClient
                 .from('profiles')
-                .update({ display_name: displayName, bio: bio })
+                .update({ display_name: displayName, faculty: faculty, grade: grade, bio: bio })
                 .eq('id', currentUser.id);
 
             if (error) {
@@ -334,10 +443,10 @@
             } else {
                 alert('プロフィールを更新しました！');
                 loadProfileData(currentUser);
+                loadRecommendedSupporters(); // サポーター欄も更新
             }
         }
 
-        // 🔑 認証処理（ログイン / 新規登録）
         async function handleAuth(e) {
             e.preventDefault();
             const email = document.getElementById('auth-email').value;
@@ -363,7 +472,7 @@
                             reason: '新規登録ボーナス'
                         }]);
                     }
-                    alert('登録成功！確認メールを送信しました。メール内のリンクを確認してください。');
+                    alert('登録成功！確認メールを送信しました。');
                 }
             } else {
                 const { error } = await supabaseClient.auth.signInWithPassword({
@@ -380,7 +489,6 @@
             }
         }
 
-        // 🚪 ログアウト処理
         async function handleSignOut() {
             if(confirm('ログアウトしますか？')) {
                 await supabaseClient.auth.signOut();
@@ -389,7 +497,6 @@
             }
         }
 
-        // 🔄 ログイン / 新規登録の画面切り替え
         function toggleAuthMode() {
             isSignUpMode = !isSignUpMode;
             const titleEl = document.getElementById('auth-form-title');
@@ -410,13 +517,81 @@
             }
         }
 
-        // 📥 データベースから投稿一覧を取得
-        async function fetchPosts() {
-            const { data: posts, error } = await supabaseClient
-                .from('posts')
-                .select('*')
-                .order('created_at', { ascending: false });
+        // 🌟 おすすめ・教育学部サポーターの読み込み＆表示
+        async function loadRecommendedSupporters() {
+            const container = document.getElementById('recommended-supporters-container');
+            if (!container) return;
 
+            // profiles テーブルからユーザーをピックアップ
+            const { data: profiles, error } = await supabaseClient
+                .from('profiles')
+                .select('*')
+                .limit(10);
+
+            if (error || !profiles || profiles.length === 0) {
+                // ダミーデータ（まだ他のユーザーがいない場合の見本）
+                container.innerHTML = `
+                    <div class="bg-white p-3 rounded-2xl border border-sage-100 shadow-xs shrink-0 w-44 text-center space-y-2">
+                        <div class="w-10 h-10 bg-sage-200 rounded-full mx-auto flex items-center justify-center font-bold text-sage-700 text-sm">教</div>
+                        <div>
+                            <p class="font-bold text-xs text-slate-800 truncate">教育の先輩</p>
+                            <p class="text-[10px] text-sage-600">教育学部 / 3年</p>
+                        </div>
+                        <span class="inline-block text-[9px] bg-amber-50 text-amber-700 font-bold px-2 py-0.5 rounded-full border border-amber-200">⭐ 4.9 (教育学部)</span>
+                        <button onclick="startDirectChat('教育の先輩')" class="w-full bg-sage-500 hover:bg-sage-600 text-white font-bold py-1.5 rounded-xl text-[10px] transition">相談する</button>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = '';
+            profiles.forEach(p => {
+                const name = p.display_name || '名無しさん';
+                const faculty = p.faculty || '学部未設定';
+                const grade = p.grade || '学年';
+                const isEducation = faculty === '教育学部';
+                const badgeText = isEducation ? '🎓 教育学部ピカ推し' : '⭐ 人気サポーター';
+                const badgeClass = isEducation ? 'bg-indigo-50 text-indigo-700 border-indigo-200' : 'bg-amber-50 text-amber-700 border-amber-200';
+
+                const card = document.createElement('div');
+                card.className = 'bg-white p-3 rounded-2xl border border-sage-100 shadow-xs shrink-0 w-44 text-center space-y-2';
+                card.innerHTML = `
+                    <div class="w-10 h-10 bg-sage-200 rounded-full mx-auto flex items-center justify-center font-bold text-sage-700 text-sm">${name.charAt(0)}</div>
+                    <div>
+                        <p class="font-bold text-xs text-slate-800 truncate">${name}</p>
+                        <p class="text-[10px] text-sage-600">${faculty} / ${grade}</p>
+                    </div>
+                    <span class="inline-block text-[9px] ${badgeClass} font-bold px-2 py-0.5 rounded-full border">${badgeText}</span>
+                    <button onclick="startDirectChat('${name}')" class="w-full bg-sage-500 hover:bg-sage-600 text-white font-bold py-1.5 rounded-xl text-[10px] transition">相談する</button>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // サポーターカードから直接チャットを開始する
+        function startDirectChat(supporterName) {
+            document.getElementById('active-chat-topic').innerText = `サポーター相談: ${supporterName}さん`;
+            switchTab('chat', document.querySelectorAll('.nav-btn')[1]);
+
+            const chatMessages = document.getElementById('chat-messages');
+            chatMessages.innerHTML = `
+                <div class="text-center text-sage-700 bg-sage-50 p-3 rounded-xl border border-sage-100 text-xs font-bold mb-3">
+                    💬 ${supporterName}さんとの個別サポートチャットを開始しました！履修や勉強の相談をしてみましょう。
+                </div>
+                <div class="flex justify-start">
+                    <div class="bg-slate-100 text-slate-700 p-2.5 rounded-2xl rounded-tl-none max-w-[80%]">こんにちは！${supporterName}さんのプロフィールを見て相談したくて連絡しました。よろしくお願いします！</div>
+                </div>
+            `;
+        }
+
+        async function fetchPosts() {
+            let query = supabaseClient.from('posts').select('*').order('created_at', { ascending: false });
+
+            if (currentFilter !== 'all') {
+                query = query.eq('post_type', currentFilter);
+            }
+
+            const { data: posts, error } = await query;
             const container = document.getElementById('posts-container');
             if (!container) return;
 
@@ -426,34 +601,97 @@
             }
 
             if (posts.length === 0) {
-                container.innerHTML = `<p class="text-center text-xs text-slate-400 py-6">まだ投稿はありません。</p>`;
+                container.innerHTML = `<p class="text-center text-xs text-slate-400 py-6">該当する投稿はありません。</p>`;
                 return;
             }
 
             container.innerHTML = '';
             posts.forEach(post => {
                 const dateStr = new Date(post.created_at).toLocaleDateString('ja-JP', { month: 'numeric', day: 'numeric', hour: '2-digit', minute:'2-digit' });
+                const typeBadgeColor = post.post_type === '💡 教えます（サポート可能）' ? 'bg-amber-100 text-amber-800' : 'bg-sage-100 text-sage-700';
 
                 let deleteBtn = '';
                 if (currentUser && currentUser.id === post.user_id) {
-                    deleteBtn = `<button onclick="deletePost(${post.id})" class="text-[10px] text-rose-500 font-bold ml-2">削除</button>`;
+                    deleteBtn = `<button onclick="event.stopPropagation(); deletePost(${post.id})" class="text-[10px] text-rose-500 font-bold ml-2">削除</button>`;
                 }
 
                 const card = document.createElement('div');
-                card.className = 'bg-white p-4 rounded-2xl shadow-xs border border-sage-100 space-y-2';
+                card.className = 'bg-white p-4 rounded-2xl shadow-xs border border-sage-100 space-y-2 cursor-pointer hover:border-sage-300 transition';
+                card.onclick = () => openDetailModal(post);
                 card.innerHTML = `
                     <div class="flex justify-between items-center">
-                        <span class="text-[10px] text-slate-400">${dateStr}</span>
-                        ${deleteBtn}
+                        <span class="text-[10px] ${typeBadgeColor} px-2.5 py-0.5 rounded-full font-bold">${post.post_type || '投稿'}</span>
+                        <div class="flex items-center gap-2">
+                            <span class="text-[10px] text-slate-400">${dateStr}</span>
+                            ${deleteBtn}
+                        </div>
                     </div>
                     <h3 class="font-bold text-slate-800 text-sm leading-snug">${post.title}</h3>
-                    <p class="text-xs text-slate-600 leading-relaxed whitespace-pre-wrap">${post.content}</p>
+                    <p class="text-xs text-slate-600 line-clamp-2 leading-relaxed">${post.content}</p>
                 `;
                 container.appendChild(card);
             });
         }
 
-        // 📝 新規投稿をデータベースに保存 ＆ ポイント加算(+30pt)
+        function openDetailModal(post) {
+            document.getElementById('detail-tag').innerText = post.post_type || '投稿';
+            document.getElementById('detail-title').innerText = post.title;
+            document.getElementById('detail-content').innerText = post.content;
+            document.getElementById('detail-date-author').innerText = new Date(post.created_at).toLocaleString('ja-JP');
+
+            const rewardEl = document.getElementById('detail-reward');
+            if (post.post_type === '💡 教えます（サポート可能）') {
+                rewardEl.innerText = '💎 50 pt 獲得（サポーター報酬）';
+            } else {
+                rewardEl.innerText = '💎 30 pt 獲得（シェア・質問報酬）';
+            }
+
+            const matchBtn = document.getElementById('match-chat-btn');
+            matchBtn.onclick = () => startMatchChat(post);
+
+            document.getElementById('detail-modal').classList.remove('hidden');
+        }
+
+        function toggleDetailModal(show) {
+            document.getElementById('detail-modal').classList.toggle('hidden', !show);
+        }
+
+        function startMatchChat(post) {
+            if (currentUser && currentUser.id === post.user_id) {
+                alert('自分の投稿とはマッチングできません。');
+                return;
+            }
+
+            activeMatch = {
+                postId: post.id,
+                title: post.title,
+                authorId: post.user_id
+            };
+
+            document.getElementById('active-chat-topic').innerText = `相談トピック: ${post.title}`;
+            toggleDetailModal(false);
+            switchTab('chat', document.querySelectorAll('.nav-btn')[1]);
+
+            const chatMessages = document.getElementById('chat-messages');
+            chatMessages.innerHTML = `
+                <div class="text-center text-emerald-600 bg-emerald-50 p-3 rounded-xl border border-emerald-200 text-xs font-bold mb-3">
+                    🎉 「${post.title}」についてマッチングが成立しました！この相手と安全にチャットできます。
+                </div>
+                <div class="flex justify-start">
+                    <div class="bg-slate-100 text-slate-700 p-2.5 rounded-2xl rounded-tl-none max-w-[80%]">こんにちは！この投稿について相談したくてマッチしました。よろしくお願いします！</div>
+                </div>
+            `;
+        }
+
+        function resetChatRoom() {
+            if(confirm('チャットルームを退出しますか？')) {
+                activeMatch = null;
+                document.getElementById('active-chat-topic').innerText = 'トピック: ピア・サポート';
+                document.getElementById('chat-messages').innerHTML = `<p class="text-center text-slate-400 py-6 text-xs">サポーターカードや投稿からチャットを開始してください！</p>`;
+                switchTab('home', document.querySelectorAll('.nav-btn')[0]);
+            }
+        }
+
         async function handleCreatePost(e) {
             e.preventDefault();
             if (!currentUser) {
@@ -461,12 +699,14 @@
                 return;
             }
 
+            const postType = document.getElementById('post-type').value;
             const title = document.getElementById('post-title').value;
             const content = document.getElementById('post-desc').value;
+            const rewardPoints = postType === '💡 教えます（サポート可能）' ? 50 : 30;
 
             const { error: postError } = await supabaseClient
                 .from('posts')
-                .insert([{ user_id: currentUser.id, title: title, content: content }]);
+                .insert([{ user_id: currentUser.id, title: title, content: content, post_type: postType }]);
 
             if (postError) {
                 alert('投稿エラー: ' + postError.message);
@@ -475,24 +715,23 @@
 
             const { data: profile } = await supabaseClient.from('profiles').select('points').eq('id', currentUser.id).single();
             const currentPoints = profile?.points ?? 120;
-            const newPoints = currentPoints + 30;
+            const newPoints = currentPoints + rewardPoints;
 
             await supabaseClient.from('profiles').update({ points: newPoints }).eq('id', currentUser.id);
 
             await supabaseClient.from('point_history').insert([{
                 user_id: currentUser.id,
-                amount: 30,
-                reason: '過去問・ノートのシェア投稿報酬'
+                amount: rewardPoints,
+                reason: `${postType}の投稿報酬`
             }]);
 
-            alert('✨ 投稿が完了しました！ (+30pt 獲得)');
+            alert(`✨ 投稿が完了しました！ (+${rewardPoints}pt 獲得)`);
             document.getElementById('post-form').reset();
             toggleModal(false);
             loadProfileData(currentUser);
             fetchPosts();
         }
 
-        // 🗑️ 投稿の削除
         async function deletePost(postId) {
             if(!confirm('本当にこの投稿を削除しますか？')) return;
 
@@ -504,7 +743,6 @@
             }
         }
 
-        // 🔀 タブ切り替え制御（未ログイン時はマイページ以外への移動をブロック）
         function switchTab(tabName, btnElement) {
             if (!currentUser && tabName !== 'mypage') {
                 return;
@@ -516,7 +754,7 @@
 
             document.getElementById('view-' + tabName).classList.remove('hidden');
 
-            const titles = { home: 'ユニ・シェア (ホーム)', chat: 'ユニ・シェア (チャット)', mypage: 'ユニ・シェア (マイページ)' };
+            const titles = { home: 'ユニ・シェア (ホーム)', chat: 'ユニ・シェア (チャットルーム)', mypage: 'ユニ・シェア (マイページ)' };
             document.getElementById('header-title').innerText = titles[tabName];
 
             if (currentUser && btnElement) {
@@ -526,6 +764,7 @@
             
             if(tabName === 'home') {
                 fetchPosts();
+                loadRecommendedSupporters(); // ホーム表示時にサポーターも読み込む
             } else if(tabName === 'mypage' && currentUser) {
                 loadProfileData(currentUser);
             }
@@ -533,13 +772,15 @@
 
         function filterPosts(type) {
             currentFilter = type;
-            ['all', 'past', 'question', 'consult'].forEach((id, index) => {
-                const btnKeys = ['all', '過去問・ノート共有', '勉強の質問', '履修登録・時間割の相談'];
+            const keys = ['all', '過去問・ノート共有', '勉強の質問', '履修登録・時間割の相談', '💡 教えます（サポート可能）', 'その他'];
+            keys.forEach((key, index) => {
                 const btn = document.querySelectorAll('.filter-btn')[index];
-                if(btnKeys[index] === type) {
-                    btn.className = 'filter-btn flex-1 py-2 rounded-lg bg-white text-sage-700 shadow-xs transition text-center text-xs font-bold';
-                } else {
-                    btn.className = 'filter-btn flex-1 py-2 rounded-lg text-slate-600 transition text-center text-xs';
+                if(btn) {
+                    if(key === type) {
+                        btn.className = 'filter-btn shrink-0 px-3 py-2 rounded-lg bg-white text-sage-700 shadow-xs transition text-center text-[11px] font-bold';
+                    } else {
+                        btn.className = 'filter-btn shrink-0 px-3 py-2 rounded-lg text-slate-600 transition text-center text-[11px]';
+                    }
                 }
             });
             fetchPosts();
