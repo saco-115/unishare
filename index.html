@@ -687,8 +687,22 @@
             }
 
             container.innerHTML = '';
-            rooms.forEach(room => {
-                const partnerName = room.partner_name || 'チャット相手';
+            for (const room of rooms) {
+                // 相手のユーザーIDを特定する
+                const partnerId = room.user1_id === currentUser.id ? room.user2_id : room.user1_id;
+                
+                // 相手のプロフィールの最新の表示名を取得する
+                let { data: partnerProfile } = await supabaseClient
+                    .from('profiles')
+                    .select('display_name, faculty, grade')
+                    .eq('id', partnerId)
+                    .single();
+
+                const partnerName = partnerProfile?.display_name || 'チャット相手';
+                const faculty = partnerProfile?.faculty || '';
+                const grade = partnerProfile?.grade || '';
+                const subText = faculty ? `${faculty} / ${grade}` : 'タップしてチャットを開く';
+
                 const item = document.createElement('div');
                 item.className = 'bg-white p-3 rounded-2xl border border-sage-100 shadow-xs flex items-center justify-between cursor-pointer hover:bg-sage-50 transition';
                 item.onclick = () => openChatRoom(room.id, partnerName);
@@ -697,15 +711,14 @@
                         <div class="w-10 h-10 rounded-full bg-sage-200 flex items-center justify-center font-bold text-sage-700 text-sm">${partnerName.charAt(0)}</div>
                         <div>
                             <h4 class="font-bold text-xs text-slate-800">${partnerName}</h4>
-                            <p class="text-[10px] text-slate-400">タップしてチャットを開く</p>
+                            <p class="text-[10px] text-slate-400">${subText}</p>
                         </div>
                     </div>
                     <span class="text-xs text-sage-600 font-bold">💬 トーク</span>
                 `;
                 container.appendChild(item);
-            });
+            }
         }
-
         async function openChatRoom(roomId, partnerName) {
             currentActiveRoomId = roomId;
             document.getElementById('active-chat-partner').innerText = partnerName;
