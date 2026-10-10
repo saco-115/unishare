@@ -529,9 +529,22 @@
             toggleTopUpModal(true);
         }
 
-        // 💎 ポイント追加（課金シミュレーション）
+        // 💎 ポイント追加（1回限りの制限付きテストチャージ）
         async function topUpPoints(amount) {
             if (!currentUser) return;
+
+            // すでに過去にチャージしたことがあるか履歴をチェック
+            const { data: historyData } = await supabaseClient
+                .from('point_history')
+                .select('*')
+                .eq('user_id', currentUser.id)
+                .eq('reason', 'ポイントチャージ（試作ボーナス）');
+
+            if (historyData && historyData.length > 0) {
+                alert('⚠️ 無料の追加チャージはすでに受け取り済みです！');
+                toggleTopUpModal(false);
+                return;
+            }
 
             const { data: profile } = await supabaseClient.from('profiles').select('points').eq('id', currentUser.id).single();
             const currentPoints = profile?.points ?? 500;
@@ -542,7 +555,7 @@
             await supabaseClient.from('point_history').insert([{
                 user_id: currentUser.id,
                 amount: amount,
-                reason: 'ポイントチャージ（課金）'
+                reason: 'ポイントチャージ（試作ボーナス）'
             }]);
 
             alert(`🎉 ${amount}pt チャージしました！`);
