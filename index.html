@@ -40,7 +40,7 @@
         </div>
         
         <div id="header-points-area" class="flex items-center bg-sage-100 text-sage-700 px-3 py-1 rounded-full font-semibold text-xs shadow-inner hidden">
-            <span>💎 <span id="user-points">120</span>pt</span>
+            <span>💎 <span id="user-points">500</span>pt</span>
         </div>
     </header>
 
@@ -57,7 +57,6 @@
                     <span class="text-[10px] text-slate-400">横スクロール ➔</span>
                 </div>
                 
-                <!-- サポーターカード横スクロールコンテナ -->
                 <div id="recommended-supporters-container" class="flex gap-3 overflow-x-auto pb-2 scrollbar-none">
                     <div class="bg-white p-3 rounded-2xl border border-sage-100 shadow-xs shrink-0 w-44 text-center space-y-2">
                         <div class="w-10 h-10 bg-sage-200 rounded-full mx-auto flex items-center justify-center font-bold text-sage-700 text-sm">教</div>
@@ -121,18 +120,14 @@
         <!-- VIEW 3: マイページ ＆ ログイン -->
         <div id="view-mypage" class="space-y-4">
             
-            <!-- 🔑 ログイン・登録フォーム (未ログイン時) -->
+            <!-- 🔑 ログイン・登録フォーム -->
             <div id="auth-container" class="bg-white p-5 rounded-2xl border border-sage-100 shadow-xs space-y-4">
                 <div class="text-center space-y-1">
-                    <h3 id="auth-form-title" class="font-bold text-sm text-sage-700">🔐 ログイン / アカウント作成</h3>
+                    <h3 id="auth-form-title" class="font-bold text-sm text-sage-700">🔐 ログイン</h3>
                     <p class="text-[11px] text-slate-500">大学メールアドレスで認証してください (.ac.jp)</p>
                 </div>
                 
                 <form id="auth-form" onsubmit="handleAuth(event)" class="space-y-3 text-xs">
-                    <div id="name-field-container" class="hidden">
-                        <label class="block font-medium text-slate-600 mb-1">表示名（ニックネーム）</label>
-                        <input type="text" id="auth-display-name" placeholder="例：鈴木" class="w-full border border-slate-200 rounded-xl p-2.5 bg-slate-50 outline-none">
-                    </div>
                     <div>
                         <label class="block font-medium text-slate-600 mb-1">メールアドレス</label>
                         <input type="email" id="auth-email" required placeholder="univ@xxx.ac.jp" class="w-full border border-slate-200 rounded-xl p-2.5 bg-slate-50 outline-none">
@@ -158,10 +153,15 @@
                     <p id="profile-email" class="text-[11px] text-slate-400"></p>
                 </div>
                 
-                <!-- 保有ポイントカード -->
-                <div class="bg-sage-50 border border-sage-100 p-3 rounded-xl flex justify-between items-center px-4">
-                    <span class="text-xs text-slate-600 font-medium">保有ポイント</span>
-                    <span class="text-sm font-bold text-sage-700">💎 <span id="profile-points">120</span> pt</span>
+                <!-- 保有ポイントカード ＆ 課金ボタン -->
+                <div class="bg-sage-50 border border-sage-100 p-3 rounded-xl space-y-2">
+                    <div class="flex justify-between items-center px-2">
+                        <span class="text-xs text-slate-600 font-medium">保有ポイント</span>
+                        <span class="text-sm font-bold text-sage-700">💎 <span id="profile-points">500</span> pt</span>
+                    </div>
+                    <button onclick="openTopUpModal()" class="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-2 rounded-xl text-xs transition shadow-xs flex items-center justify-center gap-1">
+                        💳 ポイントを追加する（課金）
+                    </button>
                 </div>
 
                 <div class="inline-block bg-emerald-50 border border-emerald-200 text-emerald-700 text-[10px] font-bold px-3 py-1 rounded-full">
@@ -173,8 +173,8 @@
                     <label class="block font-bold text-slate-700">✏️ プロフィール編集</label>
                     
                     <div>
-                        <label class="block text-[11px] text-slate-500 mb-1">表示名</label>
-                        <input type="text" id="edit-display-name" placeholder="表示名" class="w-full border border-slate-200 rounded-xl p-2 bg-slate-50 outline-none">
+                        <label class="block text-[11px] text-slate-500 mb-1">表示名（ニックネーム）</label>
+                        <input type="text" id="edit-display-name" placeholder="例：経済学部 鈴木" class="w-full border border-slate-200 rounded-xl p-2 bg-slate-50 outline-none">
                     </div>
 
                     <div class="grid grid-cols-2 gap-2">
@@ -249,23 +249,38 @@
                 <div>
                     <label class="block text-xs font-medium text-slate-600 mb-1">ポストの種類</label>
                     <select id="post-type" class="w-full border border-slate-200 rounded-xl p-2.5 text-xs bg-slate-50">
-                        <option value="過去問・ノート共有">📁 過去問・ノート共有 (+30pt)</option>
-                        <option value="勉強の質問">❓ 勉強の質問</option>
-                        <option value="履修登録・時間割の相談">📅 履修登録・時間割の相談</option>
-                        <option value="💡 教えます（サポート可能）">💡 教えます（サポート可能） (+50pt)</option>
-                        <option value="その他">📌 その他</option>
+                        <option value="過去問・ノート共有">📁 過去問・ノート共有 (消費: 30pt)</option>
+                        <option value="勉強の質問">❓ 勉強の質問 (消費: 30pt)</option>
+                        <option value="履修登録・時間割の相談">📅 履修登録・時間割の相談 (消費: 30pt)</option>
+                        <option value="💡 教えます（サポート可能）">💡 教えます（サポート可能） (消費: 0pt)</option>
+                        <option value="その他">📌 その他 (消費: 10pt)</option>
                     </select>
                 </div>
                 <div>
                     <label class="block text-xs font-medium text-slate-600 mb-1">タイトル</label>
-                    <input type="text" id="post-title" required placeholder="例：経済学概論の過去問シェア / 微分積分教えます" class="w-full border border-slate-200 rounded-xl p-2.5 text-xs bg-slate-50">
+                    <input type="text" id="post-title" required placeholder="例：経済学概論の過去問シェア" class="w-full border border-slate-200 rounded-xl p-2.5 text-xs bg-slate-50">
                 </div>
                 <div>
                     <label class="block text-xs font-medium text-slate-600 mb-1">詳細・内容</label>
                     <textarea id="post-desc" required rows="3" placeholder="詳細を記入..." class="w-full border border-slate-200 rounded-xl p-2.5 text-xs bg-slate-50"></textarea>
                 </div>
-                <button type="submit" class="w-full bg-sage-500 text-white font-bold py-3 rounded-xl text-xs shadow-md">投稿してポイント獲得</button>
+                <button type="submit" class="w-full bg-sage-500 text-white font-bold py-3 rounded-xl text-xs shadow-md">投稿する（ポイントを消費）</button>
             </form>
+        </div>
+    </div>
+
+    <!-- 💳 課金モーダル (試作) -->
+    <div id="topup-modal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-xs">
+        <div class="bg-white w-full max-w-sm rounded-2xl p-6 shadow-xl text-center space-y-4">
+            <h3 class="font-bold text-sm text-sage-700">💳 ポイント追加 (課金シミュレーター)</h3>
+            <p class="text-xs text-slate-600">テスト段階のため、無料で500ptをチャージできます！</p>
+            <div class="bg-sage-50 p-3 rounded-xl border border-sage-100 font-bold text-sage-700 text-sm">
+                💎 +500 pt チャージ
+            </div>
+            <div class="flex gap-2">
+                <button onclick="topUpPoints(500)" class="flex-1 bg-sage-600 hover:bg-sage-700 text-white font-bold py-2.5 rounded-xl text-xs transition">チャージする</button>
+                <button onclick="toggleTopUpModal(false)" class="flex-1 bg-slate-100 text-slate-600 font-bold py-2.5 rounded-xl text-xs transition">キャンセル</button>
+            </div>
         </div>
     </div>
 
@@ -283,11 +298,6 @@
                 
                 <div class="bg-sage-50/70 p-3 rounded-xl border border-sage-100 text-xs text-slate-700 leading-relaxed whitespace-pre-wrap" id="detail-content">
                     詳細内容
-                </div>
-
-                <div class="bg-amber-50 border border-amber-200 p-2.5 rounded-xl flex items-center justify-between text-xs text-amber-800">
-                    <span>🎁 このサポートで得られる報酬</span>
-                    <span class="font-bold" id="detail-reward">💎 30 pt</span>
                 </div>
             </div>
 
@@ -382,7 +392,7 @@
                 document.getElementById('edit-grade').value = profile.grade || '';
                 document.getElementById('edit-bio').value = profile.bio || '';
                 
-                const points = profile.points ?? 120;
+                const points = profile.points ?? 500;
                 document.getElementById('user-points').innerText = points;
                 document.getElementById('profile-points').innerText = points;
             }
@@ -443,7 +453,7 @@
             } else {
                 alert('プロフィールを更新しました！');
                 loadProfileData(currentUser);
-                loadRecommendedSupporters(); // サポーター欄も更新
+                loadRecommendedSupporters();
             }
         }
 
@@ -453,26 +463,23 @@
             const password = document.getElementById('auth-password').value;
 
             if (isSignUpMode) {
-                const displayName = document.getElementById('auth-display-name').value;
                 const { data, error } = await supabaseClient.auth.signUp({
                     email: email,
-                    password: password,
-                    options: {
-                        data: { display_name: displayName }
-                    }
+                    password: password
                 });
                 
                 if (error) {
                     alert('登録エラー: ' + error.message);
                 } else {
                     if (data.user) {
+                        // 新規登録時に初期ポイント500ptを付与
                         await supabaseClient.from('point_history').insert([{
                             user_id: data.user.id,
-                            amount: 120,
-                            reason: '新規登録ボーナス'
+                            amount: 500,
+                            reason: '新規登録ボーナス（500pt）'
                         }]);
                     }
-                    alert('登録成功！確認メールを送信しました。');
+                    alert('登録成功！確認メールを送信しました。メール認証後にログインしてください！');
                 }
             } else {
                 const { error } = await supabaseClient.auth.signInWithPassword({
@@ -502,34 +509,57 @@
             const titleEl = document.getElementById('auth-form-title');
             const submitBtn = document.getElementById('auth-submit-btn');
             const toggleBtn = document.getElementById('auth-toggle-btn');
-            const nameField = document.getElementById('name-field-container');
 
             if (isSignUpMode) {
                 titleEl.innerText = '✨ 新規アカウント登録';
                 submitBtn.innerText = '登録する';
                 toggleBtn.innerText = 'すでにアカウントをお持ちの方はこちら（ログイン）';
-                nameField.classList.remove('hidden');
             } else {
                 titleEl.innerText = '🔐 ログイン';
                 submitBtn.innerText = 'ログインする';
                 toggleBtn.innerText = 'アカウントをお持ちでない方はこちら（新規登録）';
-                nameField.classList.add('hidden');
             }
         }
 
-        // 🌟 おすすめ・教育学部サポーターの読み込み＆表示
+        // 💳 課金モーダル制御
+        function toggleTopUpModal(show) {
+            document.getElementById('topup-modal').classList.toggle('hidden', !show);
+        }
+        function openTopUpModal() {
+            toggleTopUpModal(true);
+        }
+
+        // 💎 ポイント追加（課金シミュレーション）
+        async function topUpPoints(amount) {
+            if (!currentUser) return;
+
+            const { data: profile } = await supabaseClient.from('profiles').select('points').eq('id', currentUser.id).single();
+            const currentPoints = profile?.points ?? 500;
+            const newPoints = currentPoints + amount;
+
+            await supabaseClient.from('profiles').update({ points: newPoints }).eq('id', currentUser.id);
+
+            await supabaseClient.from('point_history').insert([{
+                user_id: currentUser.id,
+                amount: amount,
+                reason: 'ポイントチャージ（課金）'
+            }]);
+
+            alert(`🎉 ${amount}pt チャージしました！`);
+            toggleTopUpModal(false);
+            loadProfileData(currentUser);
+        }
+
         async function loadRecommendedSupporters() {
             const container = document.getElementById('recommended-supporters-container');
             if (!container) return;
 
-            // profiles テーブルからユーザーをピックアップ
             const { data: profiles, error } = await supabaseClient
                 .from('profiles')
                 .select('*')
                 .limit(10);
 
             if (error || !profiles || profiles.length === 0) {
-                // ダミーデータ（まだ他のユーザーがいない場合の見本）
                 container.innerHTML = `
                     <div class="bg-white p-3 rounded-2xl border border-sage-100 shadow-xs shrink-0 w-44 text-center space-y-2">
                         <div class="w-10 h-10 bg-sage-200 rounded-full mx-auto flex items-center justify-center font-bold text-sage-700 text-sm">教</div>
@@ -537,7 +567,7 @@
                             <p class="font-bold text-xs text-slate-800 truncate">教育の先輩</p>
                             <p class="text-[10px] text-sage-600">教育学部 / 3年</p>
                         </div>
-                        <span class="inline-block text-[9px] bg-amber-50 text-amber-700 font-bold px-2 py-0.5 rounded-full border border-amber-200">⭐ 4.9 (教育学部)</span>
+                        <span class="inline-block text-[9px] bg-amber-50 text-amber-700 font-bold px-2 py-0.5 rounded-full border border-amber-200">⭐ 4.9 (人気)</span>
                         <button onclick="startDirectChat('教育の先輩')" class="w-full bg-sage-500 hover:bg-sage-600 text-white font-bold py-1.5 rounded-xl text-[10px] transition">相談する</button>
                     </div>
                 `;
@@ -568,7 +598,6 @@
             });
         }
 
-        // サポーターカードから直接チャットを開始する
         function startDirectChat(supporterName) {
             document.getElementById('active-chat-topic').innerText = `サポーター相談: ${supporterName}さん`;
             switchTab('chat', document.querySelectorAll('.nav-btn')[1]);
@@ -576,10 +605,10 @@
             const chatMessages = document.getElementById('chat-messages');
             chatMessages.innerHTML = `
                 <div class="text-center text-sage-700 bg-sage-50 p-3 rounded-xl border border-sage-100 text-xs font-bold mb-3">
-                    💬 ${supporterName}さんとの個別サポートチャットを開始しました！履修や勉強の相談をしてみましょう。
+                    💬 ${supporterName}さんとの個別サポートチャットを開始しました！
                 </div>
                 <div class="flex justify-start">
-                    <div class="bg-slate-100 text-slate-700 p-2.5 rounded-2xl rounded-tl-none max-w-[80%]">こんにちは！${supporterName}さんのプロフィールを見て相談したくて連絡しました。よろしくお願いします！</div>
+                    <div class="bg-slate-100 text-slate-700 p-2.5 rounded-2xl rounded-tl-none max-w-[80%]">こんにちは！相談したくて連絡しました。よろしくお願いします！</div>
                 </div>
             `;
         }
@@ -639,13 +668,6 @@
             document.getElementById('detail-content').innerText = post.content;
             document.getElementById('detail-date-author').innerText = new Date(post.created_at).toLocaleString('ja-JP');
 
-            const rewardEl = document.getElementById('detail-reward');
-            if (post.post_type === '💡 教えます（サポート可能）') {
-                rewardEl.innerText = '💎 50 pt 獲得（サポーター報酬）';
-            } else {
-                rewardEl.innerText = '💎 30 pt 獲得（シェア・質問報酬）';
-            }
-
             const matchBtn = document.getElementById('match-chat-btn');
             matchBtn.onclick = () => startMatchChat(post);
 
@@ -675,7 +697,7 @@
             const chatMessages = document.getElementById('chat-messages');
             chatMessages.innerHTML = `
                 <div class="text-center text-emerald-600 bg-emerald-50 p-3 rounded-xl border border-emerald-200 text-xs font-bold mb-3">
-                    🎉 「${post.title}」についてマッチングが成立しました！この相手と安全にチャットできます。
+                    🎉 「${post.title}」についてマッチングが成立しました！
                 </div>
                 <div class="flex justify-start">
                     <div class="bg-slate-100 text-slate-700 p-2.5 rounded-2xl rounded-tl-none max-w-[80%]">こんにちは！この投稿について相談したくてマッチしました。よろしくお願いします！</div>
@@ -692,6 +714,7 @@
             }
         }
 
+        // 📝 新規投稿（ポイントを消費する仕組み）
         async function handleCreatePost(e) {
             e.preventDefault();
             if (!currentUser) {
@@ -702,8 +725,24 @@
             const postType = document.getElementById('post-type').value;
             const title = document.getElementById('post-title').value;
             const content = document.getElementById('post-desc').value;
-            const rewardPoints = postType === '💡 教えます（サポート可能）' ? 50 : 30;
 
+            // 投稿タイプごとのポイント消費量
+            let costPoints = 30;
+            if (postType === '💡 教えます（サポート可能）') costPoints = 0;
+            if (postType === 'その他') costPoints = 10;
+
+            // 現在の保有ポイントを確認
+            const { data: profile } = await supabaseClient.from('profiles').select('points').eq('id', currentUser.id).single();
+            const currentPoints = profile?.points ?? 500;
+
+            if (currentPoints < costPoints) {
+                alert(`⚠️ ポイントが不足しています（保有: ${currentPoints}pt / 必要: ${costPoints}pt）。マイページからポイントを追加してください！`);
+                toggleModal(false);
+                switchTab('mypage', document.querySelectorAll('.nav-btn')[3]);
+                return;
+            }
+
+            // 1. 投稿を保存
             const { error: postError } = await supabaseClient
                 .from('posts')
                 .insert([{ user_id: currentUser.id, title: title, content: content, post_type: postType }]);
@@ -713,19 +752,20 @@
                 return;
             }
 
-            const { data: profile } = await supabaseClient.from('profiles').select('points').eq('id', currentUser.id).single();
-            const currentPoints = profile?.points ?? 120;
-            const newPoints = currentPoints + rewardPoints;
-
+            // 2. ポイントを消費（マイナス）
+            const newPoints = currentPoints - costPoints;
             await supabaseClient.from('profiles').update({ points: newPoints }).eq('id', currentUser.id);
 
-            await supabaseClient.from('point_history').insert([{
-                user_id: currentUser.id,
-                amount: rewardPoints,
-                reason: `${postType}の投稿報酬`
-            }]);
+            // 3. 履歴に記録
+            if (costPoints > 0) {
+                await supabaseClient.from('point_history').insert([{
+                    user_id: currentUser.id,
+                    amount: -costPoints,
+                    reason: `${postType}の投稿（ポイント消費）`
+                }]);
+            }
 
-            alert(`✨ 投稿が完了しました！ (+${rewardPoints}pt 獲得)`);
+            alert(`✨ 投稿が完了しました！ (-${costPoints}pt 消費)`);
             document.getElementById('post-form').reset();
             toggleModal(false);
             loadProfileData(currentUser);
@@ -764,7 +804,7 @@
             
             if(tabName === 'home') {
                 fetchPosts();
-                loadRecommendedSupporters(); // ホーム表示時にサポーターも読み込む
+                loadRecommendedSupporters();
             } else if(tabName === 'mypage' && currentUser) {
                 loadProfileData(currentUser);
             }
