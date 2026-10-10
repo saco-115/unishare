@@ -36,7 +36,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                 </svg>
             </div>
-            <h1 id="header-title" class="text-base font-bold text-sage-700 tracking-tight">ユニ・シェア (ホーム)</h1>
+            <h1 id="header-title" class="text-base font-bold text-sage-700 tracking-tight">ユニ・シェア (マイページ)</h1>
         </div>
         
         <div class="flex items-center bg-sage-100 text-sage-700 px-3 py-1 rounded-full font-semibold text-xs shadow-inner">
@@ -48,7 +48,7 @@
     <main class="max-w-md mx-auto px-4 py-4 space-y-4">
 
         <!-- VIEW 1: ホーム (投稿一覧) -->
-        <div id="view-home" class="space-y-4">
+        <div id="view-home" class="space-y-4 hidden">
             <div class="flex space-x-1 bg-sage-100/70 p-1 rounded-xl text-xs font-medium">
                 <button onclick="filterPosts('all')" id="btn-all" class="filter-btn flex-1 py-2 rounded-lg bg-white text-sage-700 shadow-xs transition text-center font-bold">すべて</button>
                 <button onclick="filterPosts('過去問・ノート共有')" id="btn-past" class="filter-btn flex-1 py-2 rounded-lg text-slate-600 transition text-center">過去問</button>
@@ -94,8 +94,8 @@
             </div>
         </div>
 
-        <!-- VIEW 3: マイページ ＆ ログイン -->
-        <div id="view-mypage" class="space-y-4 hidden">
+        <!-- VIEW 3: マイページ ＆ ログイン (最初から表示) -->
+        <div id="view-mypage" class="space-y-4">
             
             <!-- 🔑 ログイン・登録フォーム (未ログイン時) -->
             <div id="auth-container" class="bg-white p-5 rounded-2xl border border-sage-100 shadow-xs space-y-4">
@@ -126,13 +126,19 @@
             </div>
 
             <!-- 👤 プロフィール画面 (ログイン時) -->
-            <div id="profile-container" class="bg-white p-5 rounded-2xl border border-sage-100 shadow-xs text-center space-y-3 hidden">
+            <div id="profile-container" class="bg-white p-5 rounded-2xl border border-sage-100 shadow-xs text-center space-y-4 hidden">
                 <div class="w-16 h-16 bg-sage-200 rounded-full mx-auto flex items-center justify-center text-xl font-bold text-sage-700 shadow-inner">私</div>
                 <div>
                     <h3 id="profile-name" class="font-bold text-sm text-slate-800">読み込み中...</h3>
                     <p id="profile-email" class="text-[11px] text-slate-500"></p>
                 </div>
                 
+                <!-- 保有ポイントカード -->
+                <div class="bg-sage-50 border border-sage-100 p-3 rounded-xl flex justify-between items-center px-4">
+                    <span class="text-xs text-slate-600 font-medium">保有ポイント</span>
+                    <span class="text-sm font-bold text-sage-700">💎 <span id="profile-points">120</span> pt</span>
+                </div>
+
                 <div class="inline-block bg-emerald-50 border border-emerald-200 text-emerald-700 text-[10px] font-bold px-3 py-1 rounded-full">
                     🌟 認証済み学生ユーザー
                 </div>
@@ -142,6 +148,14 @@
                     <input type="text" id="edit-display-name" placeholder="表示名" class="w-full border border-slate-200 rounded-xl p-2 bg-slate-50">
                     <textarea id="edit-bio" rows="2" placeholder="自己紹介や履修している分野など..." class="w-full border border-slate-200 rounded-xl p-2 bg-slate-50"></textarea>
                     <button onclick="updateProfile()" class="w-full bg-sage-600 hover:bg-sage-700 text-white font-bold py-2 rounded-xl transition shadow-xs">保存する</button>
+                </div>
+
+                <!-- 📊 ポイント履歴セクション -->
+                <div class="text-left pt-4 border-t border-slate-100 space-y-2">
+                    <h4 class="font-bold text-xs text-sage-700 flex items-center gap-1">📜 ポイント獲得・利用履歴</h4>
+                    <div id="point-history-container" class="space-y-1.5 max-h-40 overflow-y-auto text-xs">
+                        <p class="text-center text-slate-400 py-2 text-[11px]">履歴はありません</p>
+                    </div>
                 </div>
 
                 <button onclick="handleSignOut()" class="w-full bg-rose-50 hover:bg-rose-100 text-rose-600 font-semibold py-2.5 rounded-xl text-xs transition border border-rose-200 mt-4">
@@ -177,14 +191,14 @@
                     <label class="block text-xs font-medium text-slate-600 mb-1">詳細・内容</label>
                     <textarea id="post-desc" required rows="3" placeholder="詳細を記入..." class="w-full border border-slate-200 rounded-xl p-2.5 text-xs bg-slate-50"></textarea>
                 </div>
-                <button type="submit" class="w-full bg-sage-500 text-white font-bold py-3 rounded-xl text-xs shadow-md">投稿する</button>
+                <button type="submit" class="w-full bg-sage-500 text-white font-bold py-3 rounded-xl text-xs shadow-md">投稿する (+30pt)</button>
             </form>
         </div>
     </div>
 
     <!-- モバイル下部ナビゲーションバー -->
     <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-sage-100 py-2 px-6 flex justify-around items-center z-40 shadow-lg">
-        <button onclick="switchTab('home', this)" class="nav-btn flex flex-col items-center text-sage-600 text-[10px] font-bold">
+        <button onclick="switchTab('home', this)" class="nav-btn flex flex-col items-center text-slate-400 text-[10px]">
             <span class="text-lg">🏠</span>ホーム
         </button>
         <button onclick="switchTab('chat', this)" class="nav-btn flex flex-col items-center text-slate-400 text-[10px]">
@@ -194,14 +208,14 @@
             <span class="text-xl font-bold leading-none">+</span>
             <span class="text-[10px] mt-0.5">投稿</span>
         </button>
-        <button onclick="switchTab('mypage', this)" class="nav-btn flex flex-col items-center text-slate-400 text-[10px]">
+        <button onclick="switchTab('mypage', this)" class="nav-btn flex flex-col items-center text-sage-600 text-[10px] font-bold">
             <span class="text-lg">👤</span>マイページ
         </button>
     </nav>
 
     <!-- ▼▼▼ Supabase & アプリケーションロジック ▼▼▼ -->
     <script>
-        // 🔴🔴 ここをご自身のSupabase情報に書き換えてください！ 🔴🔴
+        // 🔴🔴 ここにご自身のSupabase情報をセットしてください 🔴🔴
         const SUPABASE_URL = 'https://qirddzdxyfdzgmckjbkt.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_cbZUYYvEy2IdTEOH495zAw_uGhTKsci';
         // 🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴🔴
@@ -212,12 +226,11 @@
         let isSignUpMode = false;
         let currentUser = null;
 
-        // 初期化処理
+        // 初期化処理（最初はマイページタブを表示）
         window.addEventListener('DOMContentLoaded', async () => {
-    await checkSession();
-    // 最初に「マイページ」タブを開くように切り替える
-    switchTab('mypage', document.querySelectorAll('.nav-btn')[3]);
-});
+            await checkSession();
+            switchTab('mypage', document.querySelectorAll('.nav-btn')[3]);
+        });
 
         // 🟢 ログイン状態の確認
         async function checkSession() {
@@ -229,7 +242,7 @@
                 currentUser = session.user;
                 authContainer.classList.add('hidden');
                 profileContainer.classList.remove('hidden');
-                loadProfileData(session.user);
+                await loadProfileData(session.user);
             } else {
                 currentUser = null;
                 authContainer.classList.remove('hidden');
@@ -237,7 +250,7 @@
             }
         }
 
-        // 👤 プロフィール情報の読み込み
+        // 👤 プロフィール＆ポイント情報の読み込み
         async function loadProfileData(user) {
             document.getElementById('profile-email').innerText = user.email;
             
@@ -251,7 +264,49 @@
                 document.getElementById('profile-name').innerText = profile.display_name || '名無しさん';
                 document.getElementById('edit-display-name').value = profile.display_name || '';
                 document.getElementById('edit-bio').value = profile.bio || '';
+                
+                const points = profile.points ?? 120;
+                document.getElementById('user-points').innerText = points;
+                document.getElementById('profile-points').innerText = points;
             }
+
+            await loadPointHistory(user.id);
+        }
+
+        // 📜 ポイント履歴の取得＆表示
+        async function loadPointHistory(userId) {
+            const container = document.getElementById('point-history-container');
+            if(!container) return;
+
+            const { data: histories, error } = await supabaseClient
+                .from('point_history')
+                .select('*')
+                .eq('user_id', userId)
+                .order('created_at', { ascending: false });
+
+            if (error || !histories || histories.length === 0) {
+                container.innerHTML = `<p class="text-center text-slate-400 py-2 text-[11px]">履歴はありません</p>`;
+                return;
+            }
+
+            container.innerHTML = '';
+            histories.forEach(h => {
+                const dateStr = new Date(h.created_at).toLocaleDateString('ja-JP', { month: 'numeric', day: 'numeric', hour: '2-digit', minute:'2-digit' });
+                const isPlus = h.amount > 0;
+                const sign = isPlus ? '+' : '';
+                const colorClass = isPlus ? 'text-emerald-600' : 'text-rose-500';
+
+                const item = document.createElement('div');
+                item.className = 'flex justify-between items-center bg-slate-50 p-2 rounded-xl border border-slate-100 text-[11px]';
+                item.innerHTML = `
+                    <div>
+                        <p class="font-bold text-slate-700">${h.reason}</p>
+                        <p class="text-[10px] text-slate-400">${dateStr}</p>
+                    </div>
+                    <span class="font-bold ${colorClass}">${sign}${h.amount} pt</span>
+                `;
+                container.appendChild(item);
+            });
         }
 
         // ✍️ プロフィール情報の更新
@@ -271,7 +326,6 @@
             } else {
                 alert('プロフィールを更新しました！');
                 loadProfileData(currentUser);
-                fetchPosts(); // 投稿一覧の名前も更新するため
             }
         }
 
@@ -282,7 +336,6 @@
             const password = document.getElementById('auth-password').value;
 
             if (isSignUpMode) {
-                // 新規登録
                 const displayName = document.getElementById('auth-display-name').value;
                 const { data, error } = await supabaseClient.auth.signUp({
                     email: email,
@@ -295,10 +348,16 @@
                 if (error) {
                     alert('登録エラー: ' + error.message);
                 } else {
-                    alert('登録成功！確認メールを送信しました。メール内のリンクをクリックするか、そのままログインしてください。');
+                    if (data.user) {
+                        await supabaseClient.from('point_history').insert([{
+                            user_id: data.user.id,
+                            amount: 120,
+                            reason: '新規登録ボーナス'
+                        }]);
+                    }
+                    alert('登録成功！確認メールを送信しました。メール内のリンクを確認してください。');
                 }
             } else {
-                // ログイン
                 const { error } = await supabaseClient.auth.signInWithPassword({
                     email: email,
                     password: password
@@ -343,13 +402,12 @@
             }
         }
 
-        // 📥 データベースから投稿一覧を取得して表示
+        // 📥 データベースから投稿一覧を取得
         async function fetchPosts() {
-            // posts テーブルと紐づく profiles テーブルの display_name を取得
             const { data: posts, error } = await supabaseClient
-    .from('posts')
-    .select('*')
-    .order('created_at', { ascending: false });
+                .from('posts')
+                .select('*')
+                .order('created_at', { ascending: false });
 
             const container = document.getElementById('posts-container');
             if (!container) return;
@@ -365,22 +423,9 @@
             }
 
             container.innerHTML = '';
-            
-            // 投稿の種類で絞り込み
-            let filtered = posts;
-            
-            // 例: HTMLのセレクトボックスの value と posts.type の形式が合うように調整
-            // 今回は便宜上タイトルの一部から判別する簡易フィルター
-            if (currentFilter !== 'all') {
-                // ※実際の運用では posts テーブルに type カラムを追加するとより正確になります
-                // 現在のSQL設計には type カラムがないため、タイトルと内容で簡易表示します
-            }
-
-            filtered.forEach(post => {
-                const authorName = post.profiles ? (post.profiles.display_name || '名無しさん') : '匿名';
+            posts.forEach(post => {
                 const dateStr = new Date(post.created_at).toLocaleDateString('ja-JP', { month: 'numeric', day: 'numeric', hour: '2-digit', minute:'2-digit' });
 
-                // 削除ボタン（自分の投稿のみ表示）
                 let deleteBtn = '';
                 if (currentUser && currentUser.id === post.user_id) {
                     deleteBtn = `<button onclick="deletePost(${post.id})" class="text-[10px] text-rose-500 font-bold ml-2">削除</button>`;
@@ -395,55 +440,55 @@
                     </div>
                     <h3 class="font-bold text-slate-800 text-sm leading-snug">${post.title}</h3>
                     <p class="text-xs text-slate-600 leading-relaxed whitespace-pre-wrap">${post.content}</p>
-                    <div class="flex justify-between items-center pt-2 border-t border-slate-50 text-[11px] text-slate-500">
-                        <span class="font-medium text-slate-700">👤 ${authorName}</span>
-                    </div>
                 `;
                 container.appendChild(card);
             });
         }
 
-        // 📝 新規投稿をデータベースに保存
+        // 📝 新規投稿をデータベースに保存 ＆ ポイント加算(+30pt)
         async function handleCreatePost(e) {
             e.preventDefault();
             if (!currentUser) {
-                alert('投稿するにはログインが必要です。マイページからログインしてください。');
-                toggleModal(false);
-                switchTab('mypage', document.querySelectorAll('.nav-btn')[3]);
+                alert('投稿するにはログインが必要です。');
                 return;
             }
 
             const title = document.getElementById('post-title').value;
             const content = document.getElementById('post-desc').value;
-            // const type = document.getElementById('post-type').value; // 今回のSQLにはtypeカラムがないため省略
 
-            const { error } = await supabaseClient
+            const { error: postError } = await supabaseClient
                 .from('posts')
-                .insert([{ 
-                    user_id: currentUser.id, 
-                    title: title, 
-                    content: content 
-                }]);
+                .insert([{ user_id: currentUser.id, title: title, content: content }]);
 
-            if (error) {
-                alert('投稿エラー: ' + error.message);
-            } else {
-                alert('✨ 投稿が完了しました！');
-                document.getElementById('post-form').reset();
-                toggleModal(false);
-                fetchPosts(); // 一覧を再読み込み
+            if (postError) {
+                alert('投稿エラー: ' + postError.message);
+                return;
             }
+
+            const { data: profile } = await supabaseClient.from('profiles').select('points').eq('id', currentUser.id).single();
+            const currentPoints = profile?.points ?? 120;
+            const newPoints = currentPoints + 30;
+
+            await supabaseClient.from('profiles').update({ points: newPoints }).eq('id', currentUser.id);
+
+            await supabaseClient.from('point_history').insert([{
+                user_id: currentUser.id,
+                amount: 30,
+                reason: '過去問・ノートのシェア投稿報酬'
+            }]);
+
+            alert('✨ 投稿が完了しました！ (+30pt 獲得)');
+            document.getElementById('post-form').reset();
+            toggleModal(false);
+            loadProfileData(currentUser);
+            fetchPosts();
         }
 
         // 🗑️ 投稿の削除
         async function deletePost(postId) {
             if(!confirm('本当にこの投稿を削除しますか？')) return;
 
-            const { error } = await supabaseClient
-                .from('posts')
-                .delete()
-                .eq('id', postId);
-
+            const { error } = await supabaseClient.from('posts').delete().eq('id', postId);
             if (error) {
                 alert('削除エラー: ' + error.message);
             } else {
@@ -465,13 +510,13 @@
             document.querySelectorAll('.nav-btn').forEach(b => b.className = 'nav-btn flex flex-col items-center text-slate-400 text-[10px]');
             if(btnElement) btnElement.className = 'nav-btn flex flex-col items-center text-sage-600 text-[10px] font-bold';
             
-            // ホームに戻ったときは最新の投稿を取得
             if(tabName === 'home') {
                 fetchPosts();
+            } else if(tabName === 'mypage' && currentUser) {
+                loadProfileData(currentUser);
             }
         }
 
-        // 🔍 投稿の絞り込み機能（モック）
         function filterPosts(type) {
             currentFilter = type;
             ['all', 'past', 'question', 'consult'].forEach((id, index) => {
@@ -486,7 +531,6 @@
             fetchPosts();
         }
 
-        // 💬 チャット送信機能（モック）
         function sendChatMessage(e) {
             e.preventDefault();
             const input = document.getElementById('chat-input');
@@ -503,7 +547,6 @@
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }
 
-        // 📝 モーダルの開閉
         function toggleModal(show) {
             document.getElementById('post-modal').classList.toggle('hidden', !show);
         }
