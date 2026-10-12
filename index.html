@@ -55,7 +55,7 @@
 
         <!-- VIEW 1: ホーム -->
         <div id="view-home" class="space-y-4 hidden">
-            <!-- サポーターランキング (同じ大学のメンバー) -->
+            <!-- サポーターランキング -->
             <div class="space-y-2">
                 <div class="flex justify-between items-center">
                     <h3 class="font-bold text-xs text-sage-700 flex items-center gap-1">🏆 同じ大学の人気サポーター</h3>
@@ -304,7 +304,7 @@
                     <label class="block text-xs font-medium text-slate-600 mb-1">詳細・内容</label>
                     <textarea id="post-desc" required rows="3" placeholder="詳細を記入..." class="w-full border border-slate-200 rounded-xl p-2.5 text-xs bg-slate-50"></textarea>
                 </div>
-                <button type="submit" class="w-full bg-sage-500 text-white font-bold py-3 rounded-xl text-xs shadow-md">大学内に無料で投稿する</button>
+                <button type="submit" class="w-full bg-sage-500 text-white font-bold py-3 rounded-xl text-xs shadow-md">投稿する</button>
             </form>
         </div>
     </div>
@@ -433,7 +433,7 @@
         let currentPartnerId = null;
         let selectedImageFile = null;
         let currentSelectedRating = 5;
-        let userUniversity = '広島大学'; // ユーザーの所属大学
+        let userUniversity = '広島大学';
 
         function getPostCost(postType) {
             if (postType === '過去問・ノート共有' || postType === '勉強の質問') return 500;
@@ -478,7 +478,6 @@
             let { data: profile } = await supabaseClient.from('profiles').select('*').eq('id', user.id).single();
 
             if (!profile) {
-                // 新規作成時のポイントは正確に500ptに固定（予期せぬ120pt等の混入を完全防止）
                 const { data: newProfile } = await supabaseClient.from('profiles').insert([{ 
                     id: user.id, 
                     display_name: '名無しさん', 
@@ -632,12 +631,10 @@
             loadProfileData(currentUser);
         }
 
-        // 🏆 サポーターランキング（同じ大学のメンバーに限定して表示）
         async function loadSupportersRanking() {
             const container = document.getElementById('recommended-supporters-container');
             if (!container || !currentUser) return;
 
-            // 同じ大学のプロファイルを取得
             const { data: profiles } = await supabaseClient.from('profiles').select('*').eq('university', userUniversity).order('rating', { ascending: false }).limit(10);
             const { data: myRooms } = await supabaseClient.from('chat_rooms').select('*').or(`user1_id.eq.${currentUser.id},user2_id.eq.${currentUser.id}`);
 
@@ -926,7 +923,6 @@
 
         function togglePartnerProfileModal(show) { document.getElementById('partner-profile-modal').classList.toggle('hidden', !show); }
 
-        // 📥 投稿一覧の取得（自分の大学の投稿だけに絞り込む）
         async function fetchPosts() {
             let query = supabaseClient.from('posts').select('*').eq('university', userUniversity).order('created_at', { ascending: false });
             if (currentCategoryFilter !== 'all') query = query.eq('post_type', currentCategoryFilter);
@@ -1015,7 +1011,6 @@
             const title = document.getElementById('post-title').value;
             const content = document.getElementById('post-desc').value;
 
-            // 自分の大学名（userUniversity）を紐づけて投稿
             const { error: postError } = await supabaseClient.from('posts').insert([{ 
                 user_id: currentUser.id, 
                 university: userUniversity,
@@ -1026,7 +1021,7 @@
             
             if (postError) { alert('エラー: ' + postError.message); return; }
 
-            alert('✨ 大学内に投稿が完了しました！');
+            alert('✨ 投稿が完了しました！');
             document.getElementById('post-form').reset();
             toggleModal(false);
             loadProfileData(currentUser);
