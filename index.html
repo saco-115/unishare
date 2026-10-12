@@ -39,7 +39,10 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                 </svg>
             </div>
-            <h1 id="header-title" class="text-base font-bold text-sage-700 tracking-tight">ユニ・シェア</h1>
+            <div>
+                <h1 id="header-title" class="text-xs font-bold text-sage-700 tracking-tight">ユニ・シェア</h1>
+                <p id="header-university-badge" class="text-[9px] text-sage-500 font-medium">大学未選択</p>
+            </div>
         </div>
         
         <div id="header-points-area" class="flex items-center bg-sage-100 text-sage-700 px-3 py-1 rounded-full font-semibold text-xs shadow-inner hidden">
@@ -52,10 +55,10 @@
 
         <!-- VIEW 1: ホーム -->
         <div id="view-home" class="space-y-4 hidden">
-            <!-- おすすめサポーター ＆ ランキング -->
+            <!-- サポーターランキング (同じ大学のメンバー) -->
             <div class="space-y-2">
                 <div class="flex justify-between items-center">
-                    <h3 class="font-bold text-xs text-sage-700 flex items-center gap-1">🏆 サポーターランキング & 人気</h3>
+                    <h3 class="font-bold text-xs text-sage-700 flex items-center gap-1">🏆 同じ大学の人気サポーター</h3>
                 </div>
                 
                 <div id="recommended-supporters-container" class="flex gap-3 overflow-x-auto pb-2 scrollbar-none">
@@ -67,16 +70,16 @@
             <div class="space-y-2">
                 <div class="relative">
                     <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">🔍</span>
-                    <input type="text" id="search-input" oninput="filterPosts()" placeholder="キーワードや授業名で検索..." class="w-full pl-9 pr-4 py-2 bg-white border border-sage-100 rounded-xl text-xs outline-none focus:ring-2 focus:ring-sage-500 shadow-xs">
+                    <input type="text" id="search-input" oninput="fetchPosts()" placeholder="大学内のキーワードや授業名で検索..." class="w-full pl-9 pr-4 py-2 bg-white border border-sage-100 rounded-xl text-xs outline-none focus:ring-2 focus:ring-sage-500 shadow-xs">
                 </div>
 
                 <div class="flex space-x-1 bg-sage-100/70 p-1 rounded-xl text-[11px] font-medium overflow-x-auto">
                     <button onclick="setCategoryFilter('all', this)" class="cat-btn shrink-0 px-3 py-2 rounded-lg bg-white text-sage-700 shadow-xs transition text-center font-bold">すべて</button>
-                    <button onclick="setCategoryFilter('過去問・ノート共有', this)" class="cat-btn shrink-0 px-3 py-2 rounded-lg text-slate-600 transition text-center">過去問</button>
-                    <button onclick="setCategoryFilter('勉強の質問', this)" class="cat-btn shrink-0 px-3 py-2 rounded-lg text-slate-600 transition text-center">質問</button>
-                    <button onclick="setCategoryFilter('履修登録・時間割の相談', this)" class="cat-btn shrink-0 px-3 py-2 rounded-lg text-slate-600 transition text-center">履修相談</button>
-                    <button onclick="setCategoryFilter('💡 教えます（サポート可能）', this)" class="cat-btn shrink-0 px-3 py-2 rounded-lg text-slate-600 transition text-center">教えます</button>
-                    <button onclick="setCategoryFilter('その他', this)" class="cat-btn shrink-0 px-3 py-2 rounded-lg text-slate-600 transition text-center">その他</button>
+                    <button onclick="setCategoryFilter('過去問・ノート共有', this)" class="cat-btn shrink-0 px-3 py-2 rounded-lg text-slate-600 transition text-center">過去問 (500pt)</button>
+                    <button onclick="setCategoryFilter('勉強の質問', this)" class="cat-btn shrink-0 px-3 py-2 rounded-lg text-slate-600 transition text-center">質問 (500pt)</button>
+                    <button onclick="setCategoryFilter('履修登録・時間割の相談', this)" class="cat-btn shrink-0 px-3 py-2 rounded-lg text-slate-600 transition text-center">履修相談 (300pt)</button>
+                    <button onclick="setCategoryFilter('💡 教えます（サポート可能）', this)" class="cat-btn shrink-0 px-3 py-2 rounded-lg text-slate-600 transition text-center">教えます (無料)</button>
+                    <button onclick="setCategoryFilter('その他', this)" class="cat-btn shrink-0 px-3 py-2 rounded-lg text-slate-600 transition text-center">その他 (300pt)</button>
                 </div>
             </div>
             
@@ -99,7 +102,6 @@
             <div id="chat-room-view" class="bg-white rounded-2xl border border-sage-100 shadow-xs flex flex-col h-[74vh] hidden">
                 <div class="p-3 border-b border-slate-100 flex items-center justify-between bg-sage-50/50 rounded-t-2xl text-xs">
                     <button onclick="backToChatList()" class="text-sage-600 font-bold hover:underline">◀ 戻る</button>
-                    <!-- チャット上部の名前（タップでプロフィール詳細へ） -->
                     <button onclick="openPartnerProfileModal()" id="active-chat-partner" class="font-bold text-sage-700 hover:underline flex items-center gap-1 bg-sage-100/70 px-2.5 py-1 rounded-full">
                         チャットルーム 👤
                     </button>
@@ -111,14 +113,12 @@
                 </div>
 
                 <div class="p-3 border-t border-slate-100 bg-white rounded-b-2xl space-y-2">
-                    <!-- 画像アップロード用プレビュー -->
                     <div id="image-preview-area" class="hidden flex items-center gap-2 bg-sage-50 p-2 rounded-xl text-xs">
                         <span id="image-file-name" class="truncate flex-1 text-slate-600">画像が選択されています</span>
                         <button type="button" onclick="clearImageUpload()" class="text-rose-500 font-bold px-2">✕</button>
                     </div>
 
                     <form id="chat-form" onsubmit="sendChatMessage(event)" class="flex gap-2 items-center">
-                        <!-- 画像添付ボタン -->
                         <label class="cursor-pointer bg-sage-100 hover:bg-sage-200 text-sage-700 p-2 rounded-xl transition flex items-center justify-center">
                             📷
                             <input type="file" id="chat-image-input" accept="image/*" class="hidden" onchange="handleImageSelect(event)">
@@ -142,6 +142,18 @@
                 
                 <form id="auth-form" onsubmit="handleAuth(event)" class="space-y-3 text-xs">
                     <div>
+                        <label class="block font-medium text-slate-600 mb-1">大学名</label>
+                        <select id="auth-university" class="w-full border border-slate-200 rounded-xl p-2.5 bg-slate-50 outline-none font-medium">
+                            <option value="広島大学">広島大学</option>
+                            <option value="東京大学">東京大学</option>
+                            <option value="京都大学">京都大学</option>
+                            <option value="大阪大学">大阪大学</option>
+                            <option value="早稲田大学">早稲田大学</option>
+                            <option value="慶應義塾大学">慶應義塾大学</option>
+                            <option value="その他大学">その他大学</option>
+                        </select>
+                    </div>
+                    <div>
                         <label class="block font-medium text-slate-600 mb-1">メールアドレス</label>
                         <input type="email" id="auth-email" required placeholder="univ@xxx.ac.jp" class="w-full border border-slate-200 rounded-xl p-2.5 bg-slate-50 outline-none">
                     </div>
@@ -162,8 +174,9 @@
                 <div class="w-16 h-16 bg-sage-200 rounded-full mx-auto flex items-center justify-center text-xl font-bold text-sage-700 shadow-inner">私</div>
                 <div>
                     <h3 id="profile-name" class="font-bold text-sm text-slate-800">読み込み中...</h3>
-                    <p id="profile-meta" class="text-[11px] text-sage-600 font-medium mt-0.5">学部・学年未設定</p>
-                    <p id="profile-rating" class="text-[11px] text-amber-600 font-bold mt-1">⭐ 評価: 5.0 (0件)</p>
+                    <p id="profile-university-tag" class="text-xs font-bold text-sage-700 bg-sage-100 inline-block px-2.5 py-0.5 rounded-full mt-1">大学名</p>
+                    <p id="profile-meta" class="text-[11px] text-sage-600 font-medium mt-1">学部・学年未設定</p>
+                    <p id="profile-rating" class="text-[11px] text-amber-600 font-bold mt-0.5">⭐ 評価: 5.0 (0件)</p>
                     <p id="profile-email" class="text-[11px] text-slate-400"></p>
                 </div>
                 
@@ -186,6 +199,19 @@
                 <div class="text-left pt-3 border-t border-slate-100 space-y-2.5 text-xs">
                     <label class="block font-bold text-slate-700">✏️ プロフィール編集</label>
                     
+                    <div>
+                        <label class="block text-[11px] text-slate-500 mb-1">大学名</label>
+                        <select id="edit-university" class="w-full border border-slate-200 rounded-xl p-2 bg-slate-50 outline-none font-medium">
+                            <option value="広島大学">広島大学</option>
+                            <option value="東京大学">東京大学</option>
+                            <option value="京都大学">京都大学</option>
+                            <option value="大阪大学">大阪大学</option>
+                            <option value="早稲田大学">早稲田大学</option>
+                            <option value="慶應義塾大学">慶應義塾大学</option>
+                            <option value="その他大学">その他大学</option>
+                        </select>
+                    </div>
+
                     <div>
                         <label class="block text-[11px] text-slate-500 mb-1">表示名（ニックネーム）</label>
                         <input type="text" id="edit-display-name" placeholder="例：経済学部 鈴木" class="w-full border border-slate-200 rounded-xl p-2 bg-slate-50 outline-none">
@@ -263,11 +289,11 @@
                 <div>
                     <label class="block text-xs font-medium text-slate-600 mb-1">ポストの種類</label>
                     <select id="post-type" class="w-full border border-slate-200 rounded-xl p-2.5 text-xs bg-slate-50">
-                        <option value="過去問・ノート共有">📁 過去問・ノート共有 (消費: 300pt)</option>
-                        <option value="勉強の質問">❓ 勉強の質問 (消費: 300pt)</option>
+                        <option value="過去問・ノート共有">📁 過去問・ノート共有 (消費: 500pt)</option>
+                        <option value="勉強の質問">❓ 勉強の質問 (消費: 500pt)</option>
                         <option value="履修登録・時間割の相談">📅 履修登録・時間割の相談 (消費: 300pt)</option>
                         <option value="💡 教えます（サポート可能）">💡 教えます（サポート可能） (消費: 0pt)</option>
-                        <option value="その他">📌 その他 (消費: 100pt)</option>
+                        <option value="その他">📌 その他 (消費: 300pt)</option>
                     </select>
                 </div>
                 <div>
@@ -278,7 +304,7 @@
                     <label class="block text-xs font-medium text-slate-600 mb-1">詳細・内容</label>
                     <textarea id="post-desc" required rows="3" placeholder="詳細を記入..." class="w-full border border-slate-200 rounded-xl p-2.5 text-xs bg-slate-50"></textarea>
                 </div>
-                <button type="submit" class="w-full bg-sage-500 text-white font-bold py-3 rounded-xl text-xs shadow-md">投稿する（ポイントを消費）</button>
+                <button type="submit" class="w-full bg-sage-500 text-white font-bold py-3 rounded-xl text-xs shadow-md">大学内に無料で投稿する</button>
             </form>
         </div>
     </div>
@@ -341,7 +367,7 @@
 
             <div class="pt-2">
                 <button id="match-chat-btn" onclick="" class="w-full bg-sage-600 hover:bg-sage-700 text-white font-bold py-3 rounded-xl text-xs shadow-md transition flex items-center justify-center gap-2">
-                    💬 この人とマッチする (300pt)
+                    💬 この人とマッチする
                 </button>
             </div>
         </div>
@@ -358,6 +384,7 @@
             <div class="text-center space-y-2">
                 <div class="w-14 h-14 bg-sage-200 rounded-full mx-auto flex items-center justify-center text-lg font-bold text-sage-700 shadow-inner" id="modal-partner-initial">氏</div>
                 <h4 id="modal-partner-name" class="font-bold text-sm text-slate-800">名前</h4>
+                <p id="modal-partner-uni" class="text-xs font-bold text-sage-700 inline-block px-2.5 py-0.5 rounded-full bg-sage-100">大学名</p>
                 <p id="modal-partner-meta" class="text-[11px] text-sage-600 font-medium">学部 / 学年</p>
                 <p id="modal-partner-rating" class="text-[11px] text-amber-600 font-bold">⭐ 評価: 5.0 (0件)</p>
                 <div class="bg-sage-50 p-3 rounded-xl border border-sage-100 text-left text-xs text-slate-700 space-y-1">
@@ -406,6 +433,13 @@
         let currentPartnerId = null;
         let selectedImageFile = null;
         let currentSelectedRating = 5;
+        let userUniversity = '広島大学'; // ユーザーの所属大学
+
+        function getPostCost(postType) {
+            if (postType === '過去問・ノート共有' || postType === '勉強の質問') return 500;
+            if (postType === '履修登録・時間割の相談' || postType === 'その他') return 300;
+            return 0;
+        }
 
         window.addEventListener('DOMContentLoaded', async () => {
             await checkSession();
@@ -444,15 +478,27 @@
             let { data: profile } = await supabaseClient.from('profiles').select('*').eq('id', user.id).single();
 
             if (!profile) {
-                const { data: newProfile } = await supabaseClient.from('profiles').insert([{ id: user.id, display_name: '名無しさん', points: 500, rating: 5.0, rating_count: 0 }]).select().single();
+                // 新規作成時のポイントは正確に500ptに固定（予期せぬ120pt等の混入を完全防止）
+                const { data: newProfile } = await supabaseClient.from('profiles').insert([{ 
+                    id: user.id, 
+                    display_name: '名無しさん', 
+                    points: 500, 
+                    rating: 5.0, 
+                    rating_count: 0,
+                    university: '広島大学'
+                }]).select().single();
                 profile = newProfile;
             }
 
             if (profile) {
+                userUniversity = profile.university || '広島大学';
+                document.getElementById('header-university-badge').innerText = `🏛️ ${userUniversity}`;
                 document.getElementById('profile-name').innerText = profile.display_name || '名無しさん';
+                document.getElementById('profile-university-tag').innerText = `🏛️ ${userUniversity}`;
                 document.getElementById('profile-meta').innerText = `${profile.faculty || '学部未設定'} / ${profile.grade || '学年未設定'}`;
                 document.getElementById('profile-rating').innerText = `⭐ 評価: ${(profile.rating ?? 5.0).toFixed(1)} (${profile.rating_count ?? 0}件)`;
 
+                document.getElementById('edit-university').value = userUniversity;
                 document.getElementById('edit-display-name').value = profile.display_name || '';
                 document.getElementById('edit-faculty').value = profile.faculty || '';
                 document.getElementById('edit-grade').value = profile.grade || '';
@@ -498,12 +544,19 @@
 
         async function updateProfile() {
             if (!currentUser) return;
+            const university = document.getElementById('edit-university').value;
             const displayName = document.getElementById('edit-display-name').value;
             const faculty = document.getElementById('edit-faculty').value;
             const grade = document.getElementById('edit-grade').value;
             const bio = document.getElementById('edit-bio').value;
 
-            const { error } = await supabaseClient.from('profiles').update({ display_name: displayName, faculty: faculty, grade: grade, bio: bio }).eq('id', currentUser.id);
+            const { error } = await supabaseClient.from('profiles').update({ 
+                university: university, 
+                display_name: displayName, 
+                faculty: faculty, 
+                grade: grade, 
+                bio: bio 
+            }).eq('id', currentUser.id);
 
             if (error) {
                 alert('更新エラー: ' + error.message);
@@ -511,11 +564,13 @@
                 alert('プロフィールを更新しました！');
                 loadProfileData(currentUser);
                 loadSupportersRanking();
+                fetchPosts();
             }
         }
 
         async function handleAuth(e) {
             e.preventDefault();
+            const university = document.getElementById('auth-university').value;
             const email = document.getElementById('auth-email').value;
             const password = document.getElementById('auth-password').value;
 
@@ -525,7 +580,14 @@
                     alert(error.message.includes('already registered') ? 'このメールアドレスは既に登録されています。' : '登録エラー: ' + error.message);
                 } else {
                     if (data.user) {
-                        await supabaseClient.from('profiles').insert([{ id: data.user.id, display_name: '名無しさん', points: 500, rating: 5.0, rating_count: 0 }]);
+                        await supabaseClient.from('profiles').insert([{ 
+                            id: data.user.id, 
+                            university: university, 
+                            display_name: '名無しさん', 
+                            points: 500, 
+                            rating: 5.0, 
+                            rating_count: 0 
+                        }]);
                         await supabaseClient.from('point_history').insert([{ user_id: data.user.id, amount: 500, reason: '新規登録ボーナス（500pt）' }]);
                     }
                     alert('登録成功しました！');
@@ -570,15 +632,19 @@
             loadProfileData(currentUser);
         }
 
-        // 🏆 サポーターランキング＆評価の取得
+        // 🏆 サポーターランキング（同じ大学のメンバーに限定して表示）
         async function loadSupportersRanking() {
             const container = document.getElementById('recommended-supporters-container');
             if (!container || !currentUser) return;
 
-            const { data: profiles } = await supabaseClient.from('profiles').select('*').order('rating', { ascending: false }).limit(10);
+            // 同じ大学のプロファイルを取得
+            const { data: profiles } = await supabaseClient.from('profiles').select('*').eq('university', userUniversity).order('rating', { ascending: false }).limit(10);
             const { data: myRooms } = await supabaseClient.from('chat_rooms').select('*').or(`user1_id.eq.${currentUser.id},user2_id.eq.${currentUser.id}`);
 
-            if (!profiles || profiles.length === 0) return;
+            if (!profiles || profiles.length === 0) {
+                container.innerHTML = `<p class="text-center text-slate-400 text-xs py-4">同じ大学のサポーターはまだいません</p>`;
+                return;
+            }
 
             container.innerHTML = '';
             profiles.forEach((p, idx) => {
@@ -598,20 +664,18 @@
                         <p class="text-[10px] text-sage-600">${faculty}</p>
                     </div>
                     ${badgeHtml}
-                    <button onclick="startDirectChat('${p.id}', '${name}')" class="w-full bg-sage-500 hover:bg-sage-600 text-white font-bold py-1.5 rounded-xl text-[10px] transition">この人とマッチする</button>
+                    <button onclick="executeMatching('${p.id}', '${name}', 300)" class="w-full bg-sage-500 hover:bg-sage-600 text-white font-bold py-1.5 rounded-xl text-[10px] transition">この人とマッチする</button>
                 `;
                 container.appendChild(card);
             });
         }
 
-        // 💬 マッチング時にポイント消費（300pt）してチャットへ
-        async function startDirectChat(partnerId, partnerName) {
+        async function executeMatching(partnerId, partnerName, cost) {
             if (currentUser && partnerId === currentUser.id) {
                 alert('自分自身とはマッチングできません。');
                 return;
             }
 
-            // 既にルームがあるか確認
             let { data: existingRoom } = await supabaseClient
                 .from('chat_rooms')
                 .select('*')
@@ -621,23 +685,25 @@
             let roomId = existingRoom?.id;
 
             if (!roomId) {
-                // ポイントチェック (300pt)
                 const { data: profile } = await supabaseClient.from('profiles').select('points').eq('id', currentUser.id).single();
                 const currentPoints = profile?.points ?? 500;
-                const cost = 300;
 
                 if (currentPoints < cost) {
-                    alert(`⚠️ ポイントが不足しています（保有: ${currentPoints}pt / 必要: ${cost}pt）`);
+                    alert(`⚠️ ポイントが不足しています（保有: ${currentPoints}pt / 必要: ${cost}pt）。マイページからチャージしてください。`);
                     switchTab('mypage', document.querySelectorAll('.nav-btn')[3]);
                     return;
                 }
 
-                // ポイント消費 ＆ 履歴追加
                 await supabaseClient.from('profiles').update({ points: currentPoints - cost }).eq('id', currentUser.id);
-                await supabaseClient.from('point_history').insert([{ user_id: currentUser.id, amount: -cost, reason: 'サポーターマッチング費用' }]);
+                await supabaseClient.from('point_history').insert([{ user_id: currentUser.id, amount: -cost, reason: `マッチング費用 (${cost}pt)` }]);
 
-                let { data: partnerProfile } = await supabaseClient.from('profiles').select('display_name').eq('id', partnerId).single();
-                const correctPartnerName = partnerProfile?.display_name || partnerName || 'チャット相手';
+                const reward = Math.floor(cost * 0.85);
+                const { data: partnerProfileData } = await supabaseClient.from('profiles').select('points, display_name').eq('id', partnerId).single();
+                const partnerCurrentPoints = partnerProfileData?.points ?? 500;
+                await supabaseClient.from('profiles').update({ points: partnerCurrentPoints + reward }).eq('id', partnerId);
+                await supabaseClient.from('point_history').insert([{ user_id: partnerId, amount: reward, reason: `サポート報酬 (${reward}pt還元)` }]);
+
+                const correctPartnerName = partnerProfileData?.display_name || partnerName || 'チャット相手';
 
                 const { data: newRoom, error } = await supabaseClient
                     .from('chat_rooms')
@@ -649,7 +715,8 @@
             }
 
             switchTab('chat', document.querySelectorAll('.nav-btn')[1]);
-            openChatRoom(roomId, partnerName, partnerId);
+            let { data: finalPartner } = await supabaseClient.from('profiles').select('display_name').eq('id', partnerId).single();
+            openChatRoom(roomId, finalPartner?.display_name || partnerName, partnerId);
         }
 
         async function loadChatRooms() {
@@ -666,9 +733,8 @@
             container.innerHTML = '';
             for (const room of rooms) {
                 const partnerId = room.user1_id === currentUser.id ? room.user2_id : room.user1_id;
-                let { data: partnerProfile } = await supabaseClient.from('profiles').select('display_name, faculty, grade').eq('id', partnerId).single();
+                let { data: partnerProfile } = await supabaseClient.from('profiles').select('display_name, faculty, grade, university').eq('id', partnerId).single();
 
-                // 最新のメッセージを取得
                 const { data: lastMsg } = await supabaseClient.from('chat_messages').select('message, created_at').eq('room_id', room.id).order('created_at', { ascending: false }).limit(1).single();
 
                 const partnerName = partnerProfile?.display_name || 'チャット相手';
@@ -709,7 +775,6 @@
             loadChatRooms();
         }
 
-        // 📷 チャット画像選択とアップロード
         function handleImageSelect(e) {
             const file = e.target.files[0];
             if (!file) return;
@@ -724,6 +789,12 @@
             document.getElementById('image-preview-area').classList.add('hidden');
         }
 
+        function checkExternalContactGuard(text) {
+            const forbiddenKeywords = ['line', 'ライン', 'id', 'insta', 'インスタ', 'instagram', '交換', '教え て', '連絡先'];
+            const lowerText = text.toLowerCase();
+            return forbiddenKeywords.some(keyword => lowerText.includes(keyword));
+        }
+
         async function sendChatMessage(e) {
             e.preventDefault();
             if (!currentActiveRoomId || !currentUser) return;
@@ -732,13 +803,18 @@
             const text = input.value.trim();
             if(!text && !selectedImageFile) return;
 
+            if (text && checkExternalContactGuard(text)) {
+                alert('⚠️ 【安全ガード発動】\nアプリ外での直接連絡やLINE交換は未払いトラブル防止のため推奨していません。アプリ内のチャットとポイント保証をご利用ください。');
+                return;
+            }
+
             let imageUrl = null;
 
             if (selectedImageFile) {
                 const fileName = `${Date.now()}_${selectedImageFile.name}`;
                 const { data, error } = await supabaseClient.storage.from('chat_images').upload(fileName, selectedImageFile);
                 if (error) {
-                    alert('画像のアップロードに失敗しました（Storageバケットを確認してください）: ' + error.message);
+                    alert('画像のアップロードに失敗しました（Supabase Storageに `chat_images` バケットを作成してください）: ' + error.message);
                     return;
                 }
                 const { data: publicUrlData } = supabaseClient.storage.from('chat_images').getPublicUrl(fileName);
@@ -786,13 +862,8 @@
             container.scrollTop = container.scrollHeight;
         }
 
-        // ⭐ 評価＆レビューモーダル
-        function openReviewModal() {
-            document.getElementById('review-modal').classList.remove('hidden');
-        }
-        function toggleReviewModal(show) {
-            document.getElementById('review-modal').classList.toggle('hidden', !show);
-        }
+        function openReviewModal() { document.getElementById('review-modal').classList.remove('hidden'); }
+        function toggleReviewModal(show) { document.getElementById('review-modal').classList.toggle('hidden', !show); }
         function setRating(score) {
             currentSelectedRating = score;
             const stars = document.querySelectorAll('.star-btn');
@@ -804,7 +875,6 @@
             if (!currentPartnerId) return;
             const comment = document.getElementById('review-comment').value;
 
-            // 相手の現在の評価データを取得
             let { data: partnerProfile } = await supabaseClient.from('profiles').select('rating, rating_count').eq('id', currentPartnerId).single();
             const currentRating = partnerProfile?.rating ?? 5.0;
             const currentCount = partnerProfile?.rating_count ?? 0;
@@ -819,7 +889,6 @@
             backToChatList();
         }
 
-        // 👤 相手のプロフィール確認
         async function openPartnerProfileModal() {
             if (!currentPartnerId) return;
 
@@ -830,6 +899,7 @@
 
             document.getElementById('modal-partner-initial').innerText = (profile.display_name || '名').charAt(0);
             document.getElementById('modal-partner-name').innerText = profile.display_name || '名無しさん';
+            document.getElementById('modal-partner-uni').innerText = `🏛️ ${profile.university || '大学未設定'}`;
             document.getElementById('modal-partner-meta').innerText = `${profile.faculty || '学部未設定'} / ${profile.grade || '学年未設定'}`;
             document.getElementById('modal-partner-rating').innerText = `⭐ 評価: ${(profile.rating ?? 5.0).toFixed(1)} (${profile.rating_count ?? 0}件)`;
             document.getElementById('modal-partner-bio').innerText = profile.bio || '自己紹介文はありません。';
@@ -854,13 +924,11 @@
             document.getElementById('partner-profile-modal').classList.remove('hidden');
         }
 
-        function togglePartnerProfileModal(show) {
-            document.getElementById('partner-profile-modal').classList.toggle('hidden', !show);
-        }
+        function togglePartnerProfileModal(show) { document.getElementById('partner-profile-modal').classList.toggle('hidden', !show); }
 
-        // 📥 投稿一覧の取得 ＆ キーワード検索
+        // 📥 投稿一覧の取得（自分の大学の投稿だけに絞り込む）
         async function fetchPosts() {
-            let query = supabaseClient.from('posts').select('*').order('created_at', { ascending: false });
+            let query = supabaseClient.from('posts').select('*').eq('university', userUniversity).order('created_at', { ascending: false });
             if (currentCategoryFilter !== 'all') query = query.eq('post_type', currentCategoryFilter);
 
             const { data: posts } = await query;
@@ -877,7 +945,7 @@
             });
 
             if (!filteredPosts || filteredPosts.length === 0) {
-                container.innerHTML = `<p class="text-center text-xs text-slate-400 py-6">該当する投稿はありません。</p>`;
+                container.innerHTML = `<p class="text-center text-xs text-slate-400 py-6">${userUniversity}内の該当する投稿はありません。</p>`;
                 return;
             }
 
@@ -926,11 +994,12 @@
             const authorName = authorProfile?.display_name || '名無しさん';
             document.getElementById('detail-author-meta').innerText = `投稿者: ${authorName} (${authorProfile?.faculty || '学部未設定'} / ${authorProfile?.grade || '学年未設定'})`;
 
+            const cost = getPostCost(post.post_type);
             const matchBtn = document.getElementById('match-chat-btn');
-            matchBtn.innerText = '💬 この人とマッチする (300pt)';
+            matchBtn.innerText = `💬 この人とマッチする (${cost}pt消費)`;
             matchBtn.onclick = () => {
                 toggleDetailModal(false);
-                startDirectChat(post.user_id, authorName);
+                executeMatching(post.user_id, authorName, cost);
             };
 
             document.getElementById('detail-modal').classList.remove('hidden');
@@ -946,26 +1015,18 @@
             const title = document.getElementById('post-title').value;
             const content = document.getElementById('post-desc').value;
 
-            let costPoints = postType === '💡 教えます（サポート可能）' ? 0 : (postType === 'その他' ? 100 : 300);
-            const { data: profile } = await supabaseClient.from('profiles').select('points').eq('id', currentUser.id).single();
-            const currentPoints = profile?.points ?? 500;
-
-            if (currentPoints < costPoints) {
-                alert(`⚠️ ポイントが不足しています（保有: ${currentPoints}pt / 必要: ${costPoints}pt）`);
-                toggleModal(false);
-                switchTab('mypage', document.querySelectorAll('.nav-btn')[3]);
-                return;
-            }
-
-            const { error: postError } = await supabaseClient.from('posts').insert([{ user_id: currentUser.id, title, content, post_type: postType }]);
+            // 自分の大学名（userUniversity）を紐づけて投稿
+            const { error: postError } = await supabaseClient.from('posts').insert([{ 
+                user_id: currentUser.id, 
+                university: userUniversity,
+                title, 
+                content, 
+                post_type: postType 
+            }]);
+            
             if (postError) { alert('エラー: ' + postError.message); return; }
 
-            await supabaseClient.from('profiles').update({ points: currentPoints - costPoints }).eq('id', currentUser.id);
-            if (costPoints > 0) {
-                await supabaseClient.from('point_history').insert([{ user_id: currentUser.id, amount: -costPoints, reason: `${postType}の投稿（消費）` }]);
-            }
-
-            alert('✨ 投稿が完了しました！');
+            alert('✨ 大学内に投稿が完了しました！');
             document.getElementById('post-form').reset();
             toggleModal(false);
             loadProfileData(currentUser);
