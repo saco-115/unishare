@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <!-- PWA / スマホアプリ風設定 -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <title>ユニ・シェア (Uni-Share)</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -36,7 +39,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                 </svg>
             </div>
-            <h1 id="header-title" class="text-base font-bold text-sage-700 tracking-tight">ユニ・シェア (ログイン)</h1>
+            <h1 id="header-title" class="text-base font-bold text-sage-700 tracking-tight">ユニ・シェア</h1>
         </div>
         
         <div id="header-points-area" class="flex items-center bg-sage-100 text-sage-700 px-3 py-1 rounded-full font-semibold text-xs shadow-inner hidden">
@@ -49,34 +52,32 @@
 
         <!-- VIEW 1: ホーム -->
         <div id="view-home" class="space-y-4 hidden">
-            <!-- おすすめサポーター -->
+            <!-- おすすめサポーター ＆ ランキング -->
             <div class="space-y-2">
                 <div class="flex justify-between items-center">
-                    <h3 class="font-bold text-xs text-sage-700 flex items-center gap-1">🌟 おすすめ・人気のサポーター</h3>
-                    <span class="text-[10px] text-slate-400">横スクロール ➔</span>
+                    <h3 class="font-bold text-xs text-sage-700 flex items-center gap-1">🏆 サポーターランキング & 人気</h3>
                 </div>
                 
                 <div id="recommended-supporters-container" class="flex gap-3 overflow-x-auto pb-2 scrollbar-none">
-                    <div class="bg-white p-3 rounded-2xl border border-sage-100 shadow-xs shrink-0 w-44 text-center space-y-2">
-                        <div class="w-10 h-10 bg-sage-200 rounded-full mx-auto flex items-center justify-center font-bold text-sage-700 text-sm">教</div>
-                        <div>
-                            <p class="font-bold text-xs text-slate-800 truncate">教育の先輩</p>
-                            <p class="text-[10px] text-sage-600">教育学部 / 3年</p>
-                        </div>
-                        <span class="inline-block text-[9px] bg-amber-50 text-amber-700 font-bold px-2 py-0.5 rounded-full border border-amber-200">⭐ 4.9 (人気)</span>
-                        <button onclick="startDirectChat('dummy-id', '教育の先輩')" class="w-full bg-sage-500 hover:bg-sage-600 text-white font-bold py-1.5 rounded-xl text-[10px] transition">この人とマッチする</button>
-                    </div>
+                    <p class="text-center text-slate-400 text-xs py-4">読み込み中...</p>
                 </div>
             </div>
 
-            <!-- 投稿フィルタータブ -->
-            <div class="flex space-x-1 bg-sage-100/70 p-1 rounded-xl text-[11px] font-medium overflow-x-auto">
-                <button onclick="filterPosts('all')" id="btn-all" class="filter-btn shrink-0 px-3 py-2 rounded-lg bg-white text-sage-700 shadow-xs transition text-center font-bold">すべて</button>
-                <button onclick="filterPosts('過去問・ノート共有')" id="btn-past" class="filter-btn shrink-0 px-3 py-2 rounded-lg text-slate-600 transition text-center">過去問</button>
-                <button onclick="filterPosts('勉強の質問')" id="btn-question" class="filter-btn shrink-0 px-3 py-2 rounded-lg text-slate-600 transition text-center">質問</button>
-                <button onclick="filterPosts('履修登録・時間割の相談')" id="btn-consult" class="filter-btn shrink-0 px-3 py-2 rounded-lg text-slate-600 transition text-center">履修相談</button>
-                <button onclick="filterPosts('💡 教えます（サポート可能）')" id="btn-teach" class="filter-btn shrink-0 px-3 py-2 rounded-lg text-slate-600 transition text-center">教えます</button>
-                <button onclick="filterPosts('その他')" id="btn-other" class="filter-btn shrink-0 px-3 py-2 rounded-lg text-slate-600 transition text-center">その他</button>
+            <!-- 検索バー ＆ カテゴリフィルター -->
+            <div class="space-y-2">
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">🔍</span>
+                    <input type="text" id="search-input" oninput="filterPosts()" placeholder="キーワードや授業名で検索..." class="w-full pl-9 pr-4 py-2 bg-white border border-sage-100 rounded-xl text-xs outline-none focus:ring-2 focus:ring-sage-500 shadow-xs">
+                </div>
+
+                <div class="flex space-x-1 bg-sage-100/70 p-1 rounded-xl text-[11px] font-medium overflow-x-auto">
+                    <button onclick="setCategoryFilter('all', this)" class="cat-btn shrink-0 px-3 py-2 rounded-lg bg-white text-sage-700 shadow-xs transition text-center font-bold">すべて</button>
+                    <button onclick="setCategoryFilter('過去問・ノート共有', this)" class="cat-btn shrink-0 px-3 py-2 rounded-lg text-slate-600 transition text-center">過去問</button>
+                    <button onclick="setCategoryFilter('勉強の質問', this)" class="cat-btn shrink-0 px-3 py-2 rounded-lg text-slate-600 transition text-center">質問</button>
+                    <button onclick="setCategoryFilter('履修登録・時間割の相談', this)" class="cat-btn shrink-0 px-3 py-2 rounded-lg text-slate-600 transition text-center">履修相談</button>
+                    <button onclick="setCategoryFilter('💡 教えます（サポート可能）', this)" class="cat-btn shrink-0 px-3 py-2 rounded-lg text-slate-600 transition text-center">教えます</button>
+                    <button onclick="setCategoryFilter('その他', this)" class="cat-btn shrink-0 px-3 py-2 rounded-lg text-slate-600 transition text-center">その他</button>
+                </div>
             </div>
             
             <div id="posts-container" class="space-y-3">
@@ -95,22 +96,33 @@
             </div>
 
             <!-- 個別チャットルーム画面 -->
-            <div id="chat-room-view" class="bg-white rounded-2xl border border-sage-100 shadow-xs flex flex-col h-[72vh] hidden">
+            <div id="chat-room-view" class="bg-white rounded-2xl border border-sage-100 shadow-xs flex flex-col h-[74vh] hidden">
                 <div class="p-3 border-b border-slate-100 flex items-center justify-between bg-sage-50/50 rounded-t-2xl text-xs">
                     <button onclick="backToChatList()" class="text-sage-600 font-bold hover:underline">◀ 戻る</button>
                     <!-- チャット上部の名前（タップでプロフィール詳細へ） -->
                     <button onclick="openPartnerProfileModal()" id="active-chat-partner" class="font-bold text-sage-700 hover:underline flex items-center gap-1 bg-sage-100/70 px-2.5 py-1 rounded-full">
                         チャットルーム 👤
                     </button>
-                    <span class="text-[10px] text-emerald-600 font-medium">● 接続中</span>
+                    <button onclick="openReviewModal()" class="text-[10px] bg-amber-500 text-white px-2 py-1 rounded-lg font-bold shadow-xs">⭐ 評価・終了</button>
                 </div>
 
                 <div id="chat-messages" class="flex-1 p-3 overflow-y-auto space-y-3 text-xs">
                     <!-- メッセージ -->
                 </div>
 
-                <div class="p-3 border-t border-slate-100 bg-white rounded-b-2xl">
+                <div class="p-3 border-t border-slate-100 bg-white rounded-b-2xl space-y-2">
+                    <!-- 画像アップロード用プレビュー -->
+                    <div id="image-preview-area" class="hidden flex items-center gap-2 bg-sage-50 p-2 rounded-xl text-xs">
+                        <span id="image-file-name" class="truncate flex-1 text-slate-600">画像が選択されています</span>
+                        <button type="button" onclick="clearImageUpload()" class="text-rose-500 font-bold px-2">✕</button>
+                    </div>
+
                     <form id="chat-form" onsubmit="sendChatMessage(event)" class="flex gap-2 items-center">
+                        <!-- 画像添付ボタン -->
+                        <label class="cursor-pointer bg-sage-100 hover:bg-sage-200 text-sage-700 p-2 rounded-xl transition flex items-center justify-center">
+                            📷
+                            <input type="file" id="chat-image-input" accept="image/*" class="hidden" onchange="handleImageSelect(event)">
+                        </label>
                         <input type="text" id="chat-input" placeholder="メッセージを入力..." class="flex-1 border border-slate-200 rounded-xl px-3 py-2 text-xs focus:ring-2 focus:ring-sage-500 bg-slate-50 outline-none">
                         <button type="submit" class="bg-sage-500 hover:bg-sage-600 text-white font-bold px-4 py-2 rounded-xl text-xs shadow-sm transition">送信</button>
                     </form>
@@ -151,6 +163,7 @@
                 <div>
                     <h3 id="profile-name" class="font-bold text-sm text-slate-800">読み込み中...</h3>
                     <p id="profile-meta" class="text-[11px] text-sage-600 font-medium mt-0.5">学部・学年未設定</p>
+                    <p id="profile-rating" class="text-[11px] text-amber-600 font-bold mt-1">⭐ 評価: 5.0 (0件)</p>
                     <p id="profile-email" class="text-[11px] text-slate-400"></p>
                 </div>
                 
@@ -250,11 +263,11 @@
                 <div>
                     <label class="block text-xs font-medium text-slate-600 mb-1">ポストの種類</label>
                     <select id="post-type" class="w-full border border-slate-200 rounded-xl p-2.5 text-xs bg-slate-50">
-                        <option value="過去問・ノート共有">📁 過去問・ノート共有 (消費: 30pt)</option>
-                        <option value="勉強の質問">❓ 勉強の質問 (消費: 30pt)</option>
-                        <option value="履修登録・時間割の相談">📅 履修登録・時間割の相談 (消費: 30pt)</option>
+                        <option value="過去問・ノート共有">📁 過去問・ノート共有 (消費: 300pt)</option>
+                        <option value="勉強の質問">❓ 勉強の質問 (消費: 300pt)</option>
+                        <option value="履修登録・時間割の相談">📅 履修登録・時間割の相談 (消費: 300pt)</option>
                         <option value="💡 教えます（サポート可能）">💡 教えます（サポート可能） (消費: 0pt)</option>
-                        <option value="その他">📌 その他 (消費: 10pt)</option>
+                        <option value="その他">📌 その他 (消費: 100pt)</option>
                     </select>
                 </div>
                 <div>
@@ -285,6 +298,29 @@
         </div>
     </div>
 
+    <!-- ⭐ 評価＆チャット終了モーダル -->
+    <div id="review-modal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-xs">
+        <div class="bg-white w-full max-w-sm rounded-2xl p-6 shadow-xl text-center space-y-4">
+            <h3 class="font-bold text-sm text-sage-700">⭐ サポーターを評価する</h3>
+            <p class="text-xs text-slate-600">今回のサポートはいかがでしたか？評価を送信してチャットを終了します。</p>
+            
+            <div class="flex justify-center gap-2 text-2xl" id="star-rating-container">
+                <button type="button" onclick="setRating(1)" class="star-btn text-amber-300">★</button>
+                <button type="button" onclick="setRating(2)" class="star-btn text-amber-300">★</button>
+                <button type="button" onclick="setRating(3)" class="star-btn text-amber-300">★</button>
+                <button type="button" onclick="setRating(4)" class="star-btn text-amber-300">★</button>
+                <button type="button" onclick="setRating(5)" class="star-btn text-amber-400">★</button>
+            </div>
+            
+            <textarea id="review-comment" rows="2" placeholder="感謝のメッセージなど..." class="w-full border border-slate-200 rounded-xl p-2 text-xs bg-slate-50 outline-none"></textarea>
+
+            <div class="flex gap-2">
+                <button onclick="submitReview()" class="flex-1 bg-sage-600 hover:bg-sage-700 text-white font-bold py-2.5 rounded-xl text-xs transition">評価して完了</button>
+                <button onclick="toggleReviewModal(false)" class="flex-1 bg-slate-100 text-slate-600 font-bold py-2.5 rounded-xl text-xs transition">キャンセル</button>
+            </div>
+        </div>
+    </div>
+
     <!-- 🔍 投稿詳細モーダル -->
     <div id="detail-modal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-xs">
         <div class="bg-white w-full max-w-md rounded-2xl p-6 shadow-xl space-y-4 max-h-[85vh] overflow-y-auto">
@@ -305,7 +341,7 @@
 
             <div class="pt-2">
                 <button id="match-chat-btn" onclick="" class="w-full bg-sage-600 hover:bg-sage-700 text-white font-bold py-3 rounded-xl text-xs shadow-md transition flex items-center justify-center gap-2">
-                    💬 この人とマッチする
+                    💬 この人とマッチする (300pt)
                 </button>
             </div>
         </div>
@@ -323,6 +359,7 @@
                 <div class="w-14 h-14 bg-sage-200 rounded-full mx-auto flex items-center justify-center text-lg font-bold text-sage-700 shadow-inner" id="modal-partner-initial">氏</div>
                 <h4 id="modal-partner-name" class="font-bold text-sm text-slate-800">名前</h4>
                 <p id="modal-partner-meta" class="text-[11px] text-sage-600 font-medium">学部 / 学年</p>
+                <p id="modal-partner-rating" class="text-[11px] text-amber-600 font-bold">⭐ 評価: 5.0 (0件)</p>
                 <div class="bg-sage-50 p-3 rounded-xl border border-sage-100 text-left text-xs text-slate-700 space-y-1">
                     <p class="font-bold text-[10px] text-sage-700">自己紹介:</p>
                     <p id="modal-partner-bio" class="text-slate-600">自己紹介文がここに表示されます。</p>
@@ -362,11 +399,13 @@
 
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        let currentFilter = 'all';
+        let currentCategoryFilter = 'all';
         let isSignUpMode = false;
         let currentUser = null;
         let currentActiveRoomId = null;
-        let currentPartnerId = null; // 現在チャットしている相手のID
+        let currentPartnerId = null;
+        let selectedImageFile = null;
+        let currentSelectedRating = 5;
 
         window.addEventListener('DOMContentLoaded', async () => {
             await checkSession();
@@ -402,27 +441,17 @@
         async function loadProfileData(user) {
             document.getElementById('profile-email').innerText = user.email;
             
-            let { data: profile } = await supabaseClient
-                .from('profiles')
-                .select('*')
-                .eq('id', user.id)
-                .single();
+            let { data: profile } = await supabaseClient.from('profiles').select('*').eq('id', user.id).single();
 
             if (!profile) {
-                const { data: newProfile } = await supabaseClient
-                    .from('profiles')
-                    .insert([{ id: user.id, display_name: '名無しさん', points: 500 }])
-                    .select()
-                    .single();
+                const { data: newProfile } = await supabaseClient.from('profiles').insert([{ id: user.id, display_name: '名無しさん', points: 500, rating: 5.0, rating_count: 0 }]).select().single();
                 profile = newProfile;
             }
 
             if (profile) {
                 document.getElementById('profile-name').innerText = profile.display_name || '名無しさん';
-                
-                const faculty = profile.faculty || '学部未設定';
-                const grade = profile.grade || '学年未設定';
-                document.getElementById('profile-meta').innerText = `${faculty} / ${grade}`;
+                document.getElementById('profile-meta').innerText = `${profile.faculty || '学部未設定'} / ${profile.grade || '学年未設定'}`;
+                document.getElementById('profile-rating').innerText = `⭐ 評価: ${(profile.rating ?? 5.0).toFixed(1)} (${profile.rating_count ?? 0}件)`;
 
                 document.getElementById('edit-display-name').value = profile.display_name || '';
                 document.getElementById('edit-faculty').value = profile.faculty || '';
@@ -441,11 +470,7 @@
             const container = document.getElementById('point-history-container');
             if(!container) return;
 
-            const { data: histories } = await supabaseClient
-                .from('point_history')
-                .select('*')
-                .eq('user_id', userId)
-                .order('created_at', { ascending: false });
+            const { data: histories } = await supabaseClient.from('point_history').select('*').eq('user_id', userId).order('created_at', { ascending: false });
 
             if (!histories || histories.length === 0) {
                 container.innerHTML = `<p class="text-center text-slate-400 py-2 text-[11px]">履歴はありません</p>`;
@@ -478,17 +503,14 @@
             const grade = document.getElementById('edit-grade').value;
             const bio = document.getElementById('edit-bio').value;
 
-            const { error } = await supabaseClient
-                .from('profiles')
-                .update({ display_name: displayName, faculty: faculty, grade: grade, bio: bio })
-                .eq('id', currentUser.id);
+            const { error } = await supabaseClient.from('profiles').update({ display_name: displayName, faculty: faculty, grade: grade, bio: bio }).eq('id', currentUser.id);
 
             if (error) {
                 alert('更新エラー: ' + error.message);
             } else {
                 alert('プロフィールを更新しました！');
                 loadProfileData(currentUser);
-                loadRecommendedSupporters();
+                loadSupportersRanking();
             }
         }
 
@@ -503,7 +525,7 @@
                     alert(error.message.includes('already registered') ? 'このメールアドレスは既に登録されています。' : '登録エラー: ' + error.message);
                 } else {
                     if (data.user) {
-                        await supabaseClient.from('profiles').insert([{ id: data.user.id, display_name: '名無しさん', points: 500 }]);
+                        await supabaseClient.from('profiles').insert([{ id: data.user.id, display_name: '名無しさん', points: 500, rating: 5.0, rating_count: 0 }]);
                         await supabaseClient.from('point_history').insert([{ user_id: data.user.id, amount: 500, reason: '新規登録ボーナス（500pt）' }]);
                     }
                     alert('登録成功しました！');
@@ -534,19 +556,11 @@
             document.getElementById('auth-toggle-btn').innerText = isSignUpMode ? 'すでにアカウントをお持ちの方はこちら（ログイン）' : 'アカウントをお持ちでない方はこちら（新規登録）';
         }
 
-        function toggleTopUpModal(show) {
-            document.getElementById('topup-modal').classList.toggle('hidden', !show);
-        }
+        function toggleTopUpModal(show) { document.getElementById('topup-modal').classList.toggle('hidden', !show); }
         function openTopUpModal() { toggleTopUpModal(true); }
 
         async function topUpPoints(amount) {
             if (!currentUser) return;
-            const { data: historyData } = await supabaseClient.from('point_history').select('*').eq('user_id', currentUser.id).eq('reason', 'ポイントチャージ（試作ボーナス）');
-            if (historyData && historyData.length > 0) {
-                alert('⚠️ 無料の追加チャージはすでに受け取り済みです！');
-                toggleTopUpModal(false);
-                return;
-            }
             const { data: profile } = await supabaseClient.from('profiles').select('points').eq('id', currentUser.id).single();
             const newPoints = (profile?.points ?? 500) + amount;
             await supabaseClient.from('profiles').update({ points: newPoints }).eq('id', currentUser.id);
@@ -556,36 +570,32 @@
             loadProfileData(currentUser);
         }
 
-        // 🌟 おすすめサポーター一覧の取得（マッチ済みバッジ付き）
-        async function loadRecommendedSupporters() {
+        // 🏆 サポーターランキング＆評価の取得
+        async function loadSupportersRanking() {
             const container = document.getElementById('recommended-supporters-container');
             if (!container || !currentUser) return;
 
-            const { data: profiles } = await supabaseClient.from('profiles').select('*').limit(10);
+            const { data: profiles } = await supabaseClient.from('profiles').select('*').order('rating', { ascending: false }).limit(10);
             const { data: myRooms } = await supabaseClient.from('chat_rooms').select('*').or(`user1_id.eq.${currentUser.id},user2_id.eq.${currentUser.id}`);
 
             if (!profiles || profiles.length === 0) return;
 
             container.innerHTML = '';
-            profiles.forEach(p => {
+            profiles.forEach((p, idx) => {
                 if (p.id === currentUser.id) return;
                 const name = p.display_name || '名無しさん';
                 const faculty = p.faculty || '学部未設定';
-                const grade = p.grade || '';
-
-                // すでにチャットルーム（マッチ）が存在するかチェック
+                const rating = (p.rating ?? 5.0).toFixed(1);
                 const isMatched = myRooms?.some(r => r.user1_id === p.id || r.user2_id === p.id);
-                const badgeHtml = isMatched 
-                    ? `<span class="inline-block text-[9px] bg-emerald-50 text-emerald-700 font-bold px-2 py-0.5 rounded-full border border-emerald-200">💬 マッチング済み</span>` 
-                    : `<span class="inline-block text-[9px] bg-amber-50 text-amber-700 font-bold px-2 py-0.5 rounded-full border border-amber-200">⭐ サポーター</span>`;
+                const badgeHtml = isMatched ? `<span class="inline-block text-[9px] bg-emerald-50 text-emerald-700 font-bold px-2 py-0.5 rounded-full border border-emerald-200">💬 マッチング済み</span>` : `<span class="inline-block text-[9px] bg-amber-50 text-amber-700 font-bold px-2 py-0.5 rounded-full border border-amber-200">⭐ ${rating}</span>`;
 
                 const card = document.createElement('div');
                 card.className = 'bg-white p-3 rounded-2xl border border-sage-100 shadow-xs shrink-0 w-44 text-center space-y-2';
                 card.innerHTML = `
-                    <div class="w-10 h-10 bg-sage-200 rounded-full mx-auto flex items-center justify-center font-bold text-sage-700 text-sm">${name.charAt(0)}</div>
+                    <div class="w-10 h-10 bg-sage-200 rounded-full mx-auto flex items-center justify-center font-bold text-sage-700 text-sm">#${idx+1}</div>
                     <div>
                         <p class="font-bold text-xs text-slate-800 truncate">${name}</p>
-                        <p class="text-[10px] text-sage-600">${faculty} ${grade}</p>
+                        <p class="text-[10px] text-sage-600">${faculty}</p>
                     </div>
                     ${badgeHtml}
                     <button onclick="startDirectChat('${p.id}', '${name}')" class="w-full bg-sage-500 hover:bg-sage-600 text-white font-bold py-1.5 rounded-xl text-[10px] transition">この人とマッチする</button>
@@ -594,16 +604,14 @@
             });
         }
 
-        // 💬 マッチング＆即チャットルームへ移行
+        // 💬 マッチング時にポイント消費（300pt）してチャットへ
         async function startDirectChat(partnerId, partnerName) {
             if (currentUser && partnerId === currentUser.id) {
                 alert('自分自身とはマッチングできません。');
                 return;
             }
 
-            let { data: partnerProfile } = await supabaseClient.from('profiles').select('display_name').eq('id', partnerId).single();
-            const correctPartnerName = partnerProfile?.display_name || partnerName || 'チャット相手';
-
+            // 既にルームがあるか確認
             let { data: existingRoom } = await supabaseClient
                 .from('chat_rooms')
                 .select('*')
@@ -613,6 +621,24 @@
             let roomId = existingRoom?.id;
 
             if (!roomId) {
+                // ポイントチェック (300pt)
+                const { data: profile } = await supabaseClient.from('profiles').select('points').eq('id', currentUser.id).single();
+                const currentPoints = profile?.points ?? 500;
+                const cost = 300;
+
+                if (currentPoints < cost) {
+                    alert(`⚠️ ポイントが不足しています（保有: ${currentPoints}pt / 必要: ${cost}pt）`);
+                    switchTab('mypage', document.querySelectorAll('.nav-btn')[3]);
+                    return;
+                }
+
+                // ポイント消費 ＆ 履歴追加
+                await supabaseClient.from('profiles').update({ points: currentPoints - cost }).eq('id', currentUser.id);
+                await supabaseClient.from('point_history').insert([{ user_id: currentUser.id, amount: -cost, reason: 'サポーターマッチング費用' }]);
+
+                let { data: partnerProfile } = await supabaseClient.from('profiles').select('display_name').eq('id', partnerId).single();
+                const correctPartnerName = partnerProfile?.display_name || partnerName || 'チャット相手';
+
                 const { data: newRoom, error } = await supabaseClient
                     .from('chat_rooms')
                     .insert([{ user1_id: currentUser.id, user2_id: partnerId, partner_name: correctPartnerName }])
@@ -622,20 +648,15 @@
                 roomId = newRoom.id;
             }
 
-            // 【要望1】押した段階でチャットタブに切り替えて、その人のトークルームに即座に移行
             switchTab('chat', document.querySelectorAll('.nav-btn')[1]);
-            openChatRoom(roomId, correctPartnerName, partnerId);
+            openChatRoom(roomId, partnerName, partnerId);
         }
 
         async function loadChatRooms() {
             const container = document.getElementById('chat-rooms-container');
             if (!container || !currentUser) return;
 
-            const { data: rooms } = await supabaseClient
-                .from('chat_rooms')
-                .select('*')
-                .or(`user1_id.eq.${currentUser.id},user2_id.eq.${currentUser.id}`)
-                .order('created_at', { ascending: false });
+            const { data: rooms } = await supabaseClient.from('chat_rooms').select('*').or(`user1_id.eq.${currentUser.id},user2_id.eq.${currentUser.id}`).order('created_at', { ascending: false });
 
             if (!rooms || rooms.length === 0) {
                 container.innerHTML = `<p class="text-center text-slate-400 py-8 text-xs bg-white rounded-2xl border border-sage-100 shadow-xs">まだマッチングしていません。<br>ホームの投稿やサポーター一覧からマッチしてください。</p>`;
@@ -647,21 +668,24 @@
                 const partnerId = room.user1_id === currentUser.id ? room.user2_id : room.user1_id;
                 let { data: partnerProfile } = await supabaseClient.from('profiles').select('display_name, faculty, grade').eq('id', partnerId).single();
 
+                // 最新のメッセージを取得
+                const { data: lastMsg } = await supabaseClient.from('chat_messages').select('message, created_at').eq('room_id', room.id).order('created_at', { ascending: false }).limit(1).single();
+
                 const partnerName = partnerProfile?.display_name || 'チャット相手';
-                const subText = partnerProfile?.faculty ? `${partnerProfile.faculty} / ${partnerProfile.grade}` : 'タップしてチャットを開く';
+                const previewText = lastMsg ? lastMsg.message : 'メッセージはまだありません';
 
                 const item = document.createElement('div');
                 item.className = 'bg-white p-3 rounded-2xl border border-sage-100 shadow-xs flex items-center justify-between cursor-pointer hover:bg-sage-50 transition';
                 item.onclick = () => openChatRoom(room.id, partnerName, partnerId);
                 item.innerHTML = `
-                    <div class="flex items-center space-x-3">
-                        <div class="w-10 h-10 rounded-full bg-sage-200 flex items-center justify-center font-bold text-sage-700 text-sm">${partnerName.charAt(0)}</div>
-                        <div>
+                    <div class="flex items-center space-x-3 overflow-hidden">
+                        <div class="w-10 h-10 rounded-full bg-sage-200 flex items-center justify-center font-bold text-sage-700 text-sm shrink-0">${partnerName.charAt(0)}</div>
+                        <div class="truncate">
                             <h4 class="font-bold text-xs text-slate-800">${partnerName}</h4>
-                            <p class="text-[10px] text-slate-400">${subText}</p>
+                            <p class="text-[10px] text-slate-400 truncate">${previewText}</p>
                         </div>
                     </div>
-                    <span class="text-xs text-sage-600 font-bold">💬 トーク</span>
+                    <span class="text-xs text-sage-600 font-bold shrink-0 ml-2">💬 トーク</span>
                 `;
                 container.appendChild(item);
             }
@@ -685,7 +709,117 @@
             loadChatRooms();
         }
 
-        // 👤 チャット上部の名前タップで相手のプロフィールと過去投稿を表示
+        // 📷 チャット画像選択とアップロード
+        function handleImageSelect(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            selectedImageFile = file;
+            document.getElementById('image-file-name').innerText = file.name;
+            document.getElementById('image-preview-area').classList.remove('hidden');
+        }
+
+        function clearImageUpload() {
+            selectedImageFile = null;
+            document.getElementById('chat-image-input').value = '';
+            document.getElementById('image-preview-area').classList.add('hidden');
+        }
+
+        async function sendChatMessage(e) {
+            e.preventDefault();
+            if (!currentActiveRoomId || !currentUser) return;
+
+            const input = document.getElementById('chat-input');
+            const text = input.value.trim();
+            if(!text && !selectedImageFile) return;
+
+            let imageUrl = null;
+
+            if (selectedImageFile) {
+                const fileName = `${Date.now()}_${selectedImageFile.name}`;
+                const { data, error } = await supabaseClient.storage.from('chat_images').upload(fileName, selectedImageFile);
+                if (error) {
+                    alert('画像のアップロードに失敗しました（Storageバケットを確認してください）: ' + error.message);
+                    return;
+                }
+                const { data: publicUrlData } = supabaseClient.storage.from('chat_images').getPublicUrl(fileName);
+                imageUrl = publicUrlData.publicUrl;
+            }
+
+            await supabaseClient.from('chat_messages').insert([{
+                room_id: currentActiveRoomId,
+                sender_id: currentUser.id,
+                message: text || '(画像)',
+                image_url: imageUrl
+            }]);
+
+            input.value = '';
+            clearImageUpload();
+            await loadChatMessages(currentActiveRoomId);
+        }
+
+        async function loadChatMessages(roomId) {
+            const container = document.getElementById('chat-messages');
+            if(!container) return;
+
+            const { data: messages } = await supabaseClient.from('chat_messages').select('*').eq('room_id', roomId).order('created_at', { ascending: true });
+
+            if (!messages || messages.length === 0) {
+                container.innerHTML = `<p class="text-center text-slate-400 py-4 text-xs">メッセージはまだありません。挨拶や質問を送ってみましょう！</p>`;
+                return;
+            }
+
+            container.innerHTML = '';
+            messages.forEach(msg => {
+                const isMyMessage = msg.sender_id === currentUser.id;
+                let imageHtml = msg.image_url ? `<img src="${msg.image_url}" class="rounded-xl mt-1 max-h-40 object-cover cursor-pointer" onclick="window.open('${msg.image_url}')">` : '';
+
+                const bubble = document.createElement('div');
+                bubble.className = `flex ${isMyMessage ? 'justify-end' : 'justify-start'}`;
+                bubble.innerHTML = `
+                    <div class="${isMyMessage ? 'bg-sage-500 text-white rounded-tr-none' : 'bg-slate-100 text-slate-700 rounded-tl-none'} p-2.5 rounded-2xl max-w-[80%] text-xs space-y-1">
+                        <p>${msg.message}</p>
+                        ${imageHtml}
+                    </div>
+                `;
+                container.appendChild(bubble);
+            });
+            container.scrollTop = container.scrollHeight;
+        }
+
+        // ⭐ 評価＆レビューモーダル
+        function openReviewModal() {
+            document.getElementById('review-modal').classList.remove('hidden');
+        }
+        function toggleReviewModal(show) {
+            document.getElementById('review-modal').classList.toggle('hidden', !show);
+        }
+        function setRating(score) {
+            currentSelectedRating = score;
+            const stars = document.querySelectorAll('.star-btn');
+            stars.forEach((btn, idx) => {
+                btn.className = idx < score ? 'star-btn text-amber-400 text-2xl' : 'star-btn text-slate-300 text-2xl';
+            });
+        }
+        async function submitReview() {
+            if (!currentPartnerId) return;
+            const comment = document.getElementById('review-comment').value;
+
+            // 相手の現在の評価データを取得
+            let { data: partnerProfile } = await supabaseClient.from('profiles').select('rating, rating_count').eq('id', currentPartnerId).single();
+            const currentRating = partnerProfile?.rating ?? 5.0;
+            const currentCount = partnerProfile?.rating_count ?? 0;
+
+            const newCount = currentCount + 1;
+            const newRating = ((currentRating * currentCount) + currentSelectedRating) / newCount;
+
+            await supabaseClient.from('profiles').update({ rating: newRating, rating_count: newCount }).eq('id', currentPartnerId);
+            
+            alert('⭐ 評価を送信しました！ご利用ありがとうございました。');
+            toggleReviewModal(false);
+            backToChatList();
+        }
+
+        // 👤 相手のプロフィール確認
         async function openPartnerProfileModal() {
             if (!currentPartnerId) return;
 
@@ -697,6 +831,7 @@
             document.getElementById('modal-partner-initial').innerText = (profile.display_name || '名').charAt(0);
             document.getElementById('modal-partner-name').innerText = profile.display_name || '名無しさん';
             document.getElementById('modal-partner-meta').innerText = `${profile.faculty || '学部未設定'} / ${profile.grade || '学年未設定'}`;
+            document.getElementById('modal-partner-rating').innerText = `⭐ 評価: ${(profile.rating ?? 5.0).toFixed(1)} (${profile.rating_count ?? 0}件)`;
             document.getElementById('modal-partner-bio').innerText = profile.bio || '自己紹介文はありません。';
 
             const postsContainer = document.getElementById('modal-partner-posts');
@@ -723,49 +858,10 @@
             document.getElementById('partner-profile-modal').classList.toggle('hidden', !show);
         }
 
-        async function loadChatMessages(roomId) {
-            const container = document.getElementById('chat-messages');
-            if(!container) return;
-
-            const { data: messages } = await supabaseClient.from('chat_messages').select('*').eq('room_id', roomId).order('created_at', { ascending: true });
-
-            if (!messages || messages.length === 0) {
-                container.innerHTML = `<p class="text-center text-slate-400 py-4 text-xs">メッセージはまだありません。挨拶を送ってみましょう！</p>`;
-                return;
-            }
-
-            container.innerHTML = '';
-            messages.forEach(msg => {
-                const isMyMessage = msg.sender_id === currentUser.id;
-                const bubble = document.createElement('div');
-                bubble.className = `flex ${isMyMessage ? 'justify-end' : 'justify-start'}`;
-                bubble.innerHTML = `
-                    <div class="${isMyMessage ? 'bg-sage-500 text-white rounded-tr-none' : 'bg-slate-100 text-slate-700 rounded-tl-none'} p-2.5 rounded-2xl max-w-[80%] text-xs">
-                        ${msg.message}
-                    </div>
-                `;
-                container.appendChild(bubble);
-            });
-            container.scrollTop = container.scrollHeight;
-        }
-
-        async function sendChatMessage(e) {
-            e.preventDefault();
-            if (!currentActiveRoomId || !currentUser) return;
-
-            const input = document.getElementById('chat-input');
-            const text = input.value.trim();
-            if(!text) return;
-
-            await supabaseClient.from('chat_messages').insert([{ room_id: currentActiveRoomId, sender_id: currentUser.id, message: text }]);
-            input.value = '';
-            await loadChatMessages(currentActiveRoomId);
-        }
-
-        // 📥 投稿一覧の取得（マッチ済みバッジ付き）
+        // 📥 投稿一覧の取得 ＆ キーワード検索
         async function fetchPosts() {
             let query = supabaseClient.from('posts').select('*').order('created_at', { ascending: false });
-            if (currentFilter !== 'all') query = query.eq('post_type', currentFilter);
+            if (currentCategoryFilter !== 'all') query = query.eq('post_type', currentCategoryFilter);
 
             const { data: posts } = await query;
             const { data: myRooms } = currentUser ? await supabaseClient.from('chat_rooms').select('*').or(`user1_id.eq.${currentUser.id},user2_id.eq.${currentUser.id}`) : { data: [] };
@@ -773,17 +869,23 @@
             const container = document.getElementById('posts-container');
             if (!container) return;
 
-            if (!posts || posts.length === 0) {
+            const keyword = document.getElementById('search-input')?.value.toLowerCase() || '';
+
+            const filteredPosts = posts?.filter(post => {
+                if (!keyword) return true;
+                return post.title.toLowerCase().includes(keyword) || post.content.toLowerCase().includes(keyword);
+            });
+
+            if (!filteredPosts || filteredPosts.length === 0) {
                 container.innerHTML = `<p class="text-center text-xs text-slate-400 py-6">該当する投稿はありません。</p>`;
                 return;
             }
 
             container.innerHTML = '';
-            posts.forEach(post => {
+            filteredPosts.forEach(post => {
                 const dateStr = new Date(post.created_at).toLocaleDateString('ja-JP', { month: 'numeric', day: 'numeric', hour: '2-digit', minute:'2-digit' });
                 const typeBadgeColor = post.post_type === '💡 教えます（サポート可能）' ? 'bg-amber-100 text-amber-800' : 'bg-sage-100 text-sage-700';
 
-                // この投稿の主とすでにマッチしているか判定
                 const isMatched = myRooms?.some(r => r.user1_id === post.user_id || r.user2_id === post.user_id);
                 const matchedBadge = isMatched ? `<span class="text-[9px] bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded-full font-bold ml-1">💬 マッチング済み</span>` : '';
 
@@ -825,7 +927,7 @@
             document.getElementById('detail-author-meta').innerText = `投稿者: ${authorName} (${authorProfile?.faculty || '学部未設定'} / ${authorProfile?.grade || '学年未設定'})`;
 
             const matchBtn = document.getElementById('match-chat-btn');
-            matchBtn.innerText = '💬 この人とマッチする';
+            matchBtn.innerText = '💬 この人とマッチする (300pt)';
             matchBtn.onclick = () => {
                 toggleDetailModal(false);
                 startDirectChat(post.user_id, authorName);
@@ -834,9 +936,7 @@
             document.getElementById('detail-modal').classList.remove('hidden');
         }
 
-        function toggleDetailModal(show) {
-            document.getElementById('detail-modal').classList.toggle('hidden', !show);
-        }
+        function toggleDetailModal(show) { document.getElementById('detail-modal').classList.toggle('hidden', !show); }
 
         async function handleCreatePost(e) {
             e.preventDefault();
@@ -846,7 +946,7 @@
             const title = document.getElementById('post-title').value;
             const content = document.getElementById('post-desc').value;
 
-            let costPoints = postType === '💡 教えます（サポート可能）' ? 0 : (postType === 'その他' ? 10 : 30);
+            let costPoints = postType === '💡 教えます（サポート可能）' ? 0 : (postType === 'その他' ? 100 : 300);
             const { data: profile } = await supabaseClient.from('profiles').select('points').eq('id', currentUser.id).single();
             const currentPoints = profile?.points ?? 500;
 
@@ -892,21 +992,17 @@
                 btnElement.className = 'nav-btn flex flex-col items-center text-sage-600 text-[10px] font-bold';
             }
             
-            if(tabName === 'home') { fetchPosts(); loadRecommendedSupporters(); }
+            if(tabName === 'home') { fetchPosts(); loadSupportersRanking(); }
             else if(tabName === 'chat') { backToChatList(); }
             else if(tabName === 'mypage' && currentUser) { loadProfileData(currentUser); }
         }
 
-        function filterPosts(type) {
-            currentFilter = type;
-            const keys = ['all', '過去問・ノート共有', '勉強の質問', '履修登録・時間割の相談', '💡 教えます（サポート可能）', 'その他'];
-            keys.forEach((key, index) => {
-                const btn = document.querySelectorAll('.filter-btn')[index];
-                if(btn) {
-                    btn.className = key === type 
-                        ? 'filter-btn shrink-0 px-3 py-2 rounded-lg bg-white text-sage-700 shadow-xs transition text-center text-[11px] font-bold'
-                        : 'filter-btn shrink-0 px-3 py-2 rounded-lg text-slate-600 transition text-center text-[11px]';
-                }
+        function setCategoryFilter(type, btnElement) {
+            currentCategoryFilter = type;
+            document.querySelectorAll('.cat-btn').forEach(btn => {
+                btn.className = btn === btnElement 
+                    ? 'cat-btn shrink-0 px-3 py-2 rounded-lg bg-white text-sage-700 shadow-xs transition text-center text-[11px] font-bold'
+                    : 'cat-btn shrink-0 px-3 py-2 rounded-lg text-slate-600 transition text-center text-[11px]';
             });
             fetchPosts();
         }
