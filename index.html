@@ -180,7 +180,7 @@
                     <p id="profile-email" class="text-[11px] text-slate-400"></p>
                 </div>
                 
-                <!-- 保有ポイントカード ＆ 課金ボタン -->
+                <!-- 保有ポイントカード ＆ 課金案内ボタン -->
                 <div class="bg-sage-50 border border-sage-100 p-3 rounded-xl space-y-2">
                     <div class="flex justify-between items-center px-2">
                         <span class="text-xs text-slate-600 font-medium">保有ポイント</span>
@@ -310,17 +310,25 @@
         </div>
     </div>
 
-    <!-- 💳 課金モーダル -->
+    <!-- 💳 課金モーダル（ボーナス受取制限付き） -->
     <div id="topup-modal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-xs">
         <div class="bg-white w-full max-w-sm rounded-2xl p-6 shadow-xl text-center space-y-4">
-            <h3 class="font-bold text-sm text-sage-700">💳 ポイント追加 (課金シミュレーター)</h3>
-            <p class="text-xs text-slate-600">テスト段階のため、無料で500ptをチャージできます！</p>
-            <div class="bg-sage-50 p-3 rounded-xl border border-sage-100 font-bold text-sage-700 text-sm">
-                💎 +500 pt チャージ
+            <h3 class="font-bold text-sm text-sage-700">💳 ポイント追加 (課金)</h3>
+            <p id="topup-desc" class="text-xs text-slate-600">初回登録ボーナスは受取済みです。本格運用時はここから決済（課金）してポイントを追加します。</p>
+            
+            <div id="bonus-claim-area" class="hidden space-y-2">
+                <div class="bg-sage-50 p-3 rounded-xl border border-sage-100 font-bold text-sage-700 text-xs">
+                    🎁 未受取の初回ボーナス (500pt) があります！
+                </div>
+                <button onclick="claimBonusPoints()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-xs transition">初回500ptを受け取る</button>
             </div>
+
+            <div class="bg-slate-50 p-3 rounded-xl border border-slate-100 text-xs text-slate-500">
+                💡 現在テスト段階のため、決済機能は準備中です。
+            </div>
+
             <div class="flex gap-2">
-                <button onclick="topUpPoints(500)" class="flex-1 bg-sage-600 hover:bg-sage-700 text-white font-bold py-2.5 rounded-xl text-xs transition">チャージする</button>
-                <button onclick="toggleTopUpModal(false)" class="flex-1 bg-slate-100 text-slate-600 font-bold py-2.5 rounded-xl text-xs transition">キャンセル</button>
+                <button onclick="toggleTopUpModal(false)" class="w-full bg-slate-100 text-slate-600 font-bold py-2.5 rounded-xl text-xs transition">閉じる</button>
             </div>
         </div>
     </div>
@@ -427,7 +435,6 @@
 
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        // 全国主要大学データベース（都道府県別）
         const universityData = {
             "北海道": ["北海道大学", "北海道教育大学", "小樽商科大学", "室蘭工業大学", "帯広畜産大学", "旭川医科大学", "北見工業大学", "札幌医科大学", "北海学園大学", "北星学園大学", "藤女子大学", "北海道科学大学"],
             "宮城県": ["東北大学", "宮城教育大学", "東北学院大学", "東北福祉大学", "宮城大学"],
@@ -530,10 +537,11 @@
             let { data: profile } = await supabaseClient.from('profiles').select('*').eq('id', user.id).single();
 
             if (!profile) {
+                // 新規プロファイル作成時はポイントを0からスタート（ボーナスは初回受取ボタンまたは明示的処理で制御）
                 const { data: newProfile } = await supabaseClient.from('profiles').insert([{ 
                     id: user.id, 
                     display_name: '名無しさん', 
-                    points: 500, 
+                    points: 0, 
                     rating: 5.0, 
                     rating_count: 0,
                     university: '広島大学'
@@ -549,7 +557,6 @@
                 document.getElementById('profile-meta').innerText = `${profile.faculty || '学部未設定'} / ${profile.grade || '学年未設定'}`;
                 document.getElementById('profile-rating').innerText = `⭐ 評価: ${(profile.rating ?? 5.0).toFixed(1)} (${profile.rating_count ?? 0}件)`;
 
-                // プロフィール編集画面の大学設定
                 let foundPref = '広島大学';
                 for (const [pref, univList] of Object.entries(universityData)) {
                     if (univList.includes(userUniversity)) {
@@ -565,7 +572,7 @@
                 document.getElementById('edit-grade').value = profile.grade || '';
                 document.getElementById('edit-bio').value = profile.bio || '';
                 
-                const points = profile.points ?? 500;
+                const points = profile.points ?? 0;
                 document.getElementById('user-points').innerText = points;
                 document.getElementById('profile-points').innerText = points;
             }
@@ -647,19 +654,18 @@
                 } else {
                     const userId = data.user?.id;
                     if (userId) {
-                        // プロフィール作成と初期ポイント付与を確実に実行
+                        // 初回登録プロファイル作成（ポイント0、初回ボーナス未受取状態）
                         await supabaseClient.from('profiles').upsert([{ 
                             id: userId, 
                             university: university, 
                             display_name: '名無しさん', 
-                            points: 500, 
+                            points: 0, 
                             rating: 5.0, 
                             rating_count: 0 
                         }]);
-                        await supabaseClient.from('point_history').insert([{ user_id: userId, amount: 500, reason: '新規登録ボーナス（500pt）' }]);
                     }
                     alert('✨ 登録成功しました！ログインしてください。');
-                    toggleAuthMode(); // ログイン画面へ切り替え
+                    toggleAuthMode();
                 }
             } else {
                 const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
@@ -687,16 +693,64 @@
             document.getElementById('auth-toggle-btn').innerText = isSignUpMode ? 'すでにアカウントをお持ちの方はこちら（ログイン）' : 'アカウントをお持ちでない方はこちら（新規登録）';
         }
 
-        function toggleTopUpModal(show) { document.getElementById('topup-modal').classList.toggle('hidden', !show); }
-        function openTopUpModal() { toggleTopUpModal(true); }
-
-        async function topUpPoints(amount) {
+        // 💳 課金モーダルを開く際に、過去にボーナスを受け取ったかチェックする
+        async function openTopUpModal() {
             if (!currentUser) return;
+            
+            // 履歴に「新規登録ボーナス」がすでに存在するかチェック
+            const { data: histories } = await supabaseClient
+                .from('point_history')
+                .select('*')
+                .eq('user_id', currentUser.id)
+                .ilike('reason', '%新規登録ボーナス%');
+
+            const bonusArea = document.getElementById('bonus-claim-area');
+            const topupDesc = document.getElementById('topup-desc');
+
+            if (!histories || histories.length === 0) {
+                // まだ受け取っていない場合
+                bonusArea.classList.remove('hidden');
+                topupDesc.innerText = '初回登録ボーナス（500pt）がまだ受け取れます！';
+            } else {
+                // すでに受け取り済みの場合
+                bonusArea.classList.add('hidden');
+                topupDesc.innerText = '⚠️ 初回登録ボーナスはすでに受取済みです。ポイントを追加したい場合は、以下の課金（または運営へのお問い合わせ）をご利用ください。';
+            }
+
+            document.getElementById('topup-modal').classList.remove('hidden');
+        }
+
+        function toggleTopUpModal(show) { 
+            document.getElementById('topup-modal').classList.toggle('hidden', !show); 
+        }
+
+        // 🎁 初回ボーナスを1回だけ受け取る処理
+        async function claimBonusPoints() {
+            if (!currentUser) return;
+
+            // 二重受取防止の再確認
+            const { data: histories } = await supabaseClient
+                .from('point_history')
+                .select('*')
+                .eq('user_id', currentUser.id)
+                .ilike('reason', '%新規登録ボーナス%');
+
+            if (histories && histories.length > 0) {
+                alert('⚠️ このボーナスはすでに受け取り済みです。');
+                toggleTopUpModal(false);
+                return;
+            }
+
+            // 現在のポイント取得
             const { data: profile } = await supabaseClient.from('profiles').select('points').eq('id', currentUser.id).single();
-            const newPoints = (profile?.points ?? 500) + amount;
+            const currentPoints = profile?.points ?? 0;
+            const newPoints = currentPoints + 500;
+
+            // ポイント加算と履歴記録
             await supabaseClient.from('profiles').update({ points: newPoints }).eq('id', currentUser.id);
-            await supabaseClient.from('point_history').insert([{ user_id: currentUser.id, amount: amount, reason: 'ポイントチャージ（試作ボーナス）' }]);
-            alert(`🎉 ${amount}pt チャージしました！`);
+            await supabaseClient.from('point_history').insert([{ user_id: currentUser.id, amount: 500, reason: '新規登録ボーナス（500pt）' }]);
+
+            alert('🎉 初回登録ボーナス 500pt を受け取りました！');
             toggleTopUpModal(false);
             loadProfileData(currentUser);
         }
@@ -753,10 +807,10 @@
 
             if (!roomId) {
                 const { data: profile } = await supabaseClient.from('profiles').select('points').eq('id', currentUser.id).single();
-                const currentPoints = profile?.points ?? 500;
+                const currentPoints = profile?.points ?? 0;
 
                 if (currentPoints < cost) {
-                    alert(`⚠️ ポイントが不足しています（保有: ${currentPoints}pt / 必要: ${cost}pt）。マイページからチャージしてください。`);
+                    alert(`⚠️ ポイントが不足しています（保有: ${currentPoints}pt / 必要: ${cost}pt）。マイページの「ポイントを追加する（課金）」からチャージしてください。`);
                     switchTab('mypage', document.querySelectorAll('.nav-btn')[3]);
                     return;
                 }
@@ -766,7 +820,7 @@
 
                 const reward = Math.floor(cost * 0.85);
                 const { data: partnerProfileData } = await supabaseClient.from('profiles').select('points, display_name').eq('id', partnerId).single();
-                const partnerCurrentPoints = partnerProfileData?.points ?? 500;
+                const partnerCurrentPoints = partnerProfileData?.points ?? 0;
                 await supabaseClient.from('profiles').update({ points: partnerCurrentPoints + reward }).eq('id', partnerId);
                 await supabaseClient.from('point_history').insert([{ user_id: partnerId, amount: reward, reason: `サポート報酬 (${reward}pt還元)` }]);
 
@@ -800,8 +854,6 @@
             container.innerHTML = '';
             for (const room of rooms) {
                 const partnerId = room.user1_id === currentUser.id ? room.user2_id : room.user1_id;
-                
-                // 相手のプロフィール情報を取得（名前が正しく表示されるよう修正）
                 let { data: partnerProfile } = await supabaseClient.from('profiles').select('display_name, faculty, grade, university').eq('id', partnerId).single();
 
                 const { data: lastMsg } = await supabaseClient.from('chat_messages').select('message, created_at').eq('room_id', room.id).order('created_at', { ascending: false }).limit(1).single();
@@ -830,7 +882,6 @@
             currentActiveRoomId = roomId;
             currentPartnerId = partnerId;
             
-            // 相手の名前を確実に反映
             let { data: partnerProfile } = await supabaseClient.from('profiles').select('display_name').eq('id', partnerId).single();
             const actualName = partnerProfile?.display_name || partnerName || 'チャット相手';
 
@@ -888,7 +939,7 @@
                 const fileName = `${Date.now()}_${selectedImageFile.name}`;
                 const { data, error } = await supabaseClient.storage.from('chat_images').upload(fileName, selectedImageFile);
                 if (error) {
-                    alert('画像のアップロードに失敗しました（Supabase Storageに `chat_images` バケットを作成してください）: ' + error.message);
+                    alert('画像のアップロードに失敗しました: ' + error.message);
                     return;
                 }
                 const { data: publicUrlData } = supabaseClient.storage.from('chat_images').getPublicUrl(fileName);
