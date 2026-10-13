@@ -144,13 +144,13 @@
                     <div>
                         <label class="block font-medium text-slate-600 mb-1">都道府県</label>
                         <select id="auth-pref" onchange="updateUnivOptions('auth')" class="w-full border border-slate-200 rounded-xl p-2.5 bg-slate-50 outline-none font-medium">
-                            <!-- 都道府県リストはJSで自動生成 -->
+                            <!-- 都道府県リスト -->
                         </select>
                     </div>
                     <div>
                         <label class="block font-medium text-slate-600 mb-1">大学名</label>
                         <select id="auth-university" class="w-full border border-slate-200 rounded-xl p-2.5 bg-slate-50 outline-none font-medium">
-                            <!-- 大学リストはJSで自動切り替え -->
+                            <!-- 大学リスト -->
                         </select>
                     </div>
                     <div>
@@ -180,7 +180,7 @@
                     <p id="profile-email" class="text-[11px] text-slate-400"></p>
                 </div>
                 
-                <!-- 保有ポイントカード ＆ 課金案内ボタン -->
+                <!-- 保有ポイントカード ＆ 課金ボタン -->
                 <div class="bg-sage-50 border border-sage-100 p-3 rounded-xl space-y-2">
                     <div class="flex justify-between items-center px-2">
                         <span class="text-xs text-slate-600 font-medium">保有ポイント</span>
@@ -310,7 +310,7 @@
         </div>
     </div>
 
-    <!-- 💳 課金モーダル（ボーナス受取制限付き） -->
+    <!-- 💳 課金モーダル -->
     <div id="topup-modal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4 backdrop-blur-xs">
         <div class="bg-white w-full max-w-sm rounded-2xl p-6 shadow-xl text-center space-y-4">
             <h3 class="font-bold text-sm text-sage-700">💳 ポイント追加 (課金)</h3>
@@ -323,7 +323,7 @@
                 <button onclick="claimBonusPoints()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-xs transition">初回500ptを受け取る</button>
             </div>
 
-            <div class="bg-slate-50 p-3 rounded-xl border border-slate-100 text-xs text-slate-500">
+            <div class="bg-slate-50 p-3 rounded-xl border border-sage-100 text-xs text-slate-500">
                 💡 現在テスト段階のため、決済機能は準備中です。
             </div>
 
@@ -537,7 +537,6 @@
             let { data: profile } = await supabaseClient.from('profiles').select('*').eq('id', user.id).single();
 
             if (!profile) {
-                // 新規プロファイル作成時はポイントを0からスタート（ボーナスは初回受取ボタンまたは明示的処理で制御）
                 const { data: newProfile } = await supabaseClient.from('profiles').insert([{ 
                     id: user.id, 
                     display_name: '名無しさん', 
@@ -654,7 +653,6 @@
                 } else {
                     const userId = data.user?.id;
                     if (userId) {
-                        // 初回登録プロファイル作成（ポイント0、初回ボーナス未受取状態）
                         await supabaseClient.from('profiles').upsert([{ 
                             id: userId, 
                             university: university, 
@@ -693,11 +691,9 @@
             document.getElementById('auth-toggle-btn').innerText = isSignUpMode ? 'すでにアカウントをお持ちの方はこちら（ログイン）' : 'アカウントをお持ちでない方はこちら（新規登録）';
         }
 
-        // 💳 課金モーダルを開く際に、過去にボーナスを受け取ったかチェックする
         async function openTopUpModal() {
             if (!currentUser) return;
             
-            // 履歴に「新規登録ボーナス」がすでに存在するかチェック
             const { data: histories } = await supabaseClient
                 .from('point_history')
                 .select('*')
@@ -708,11 +704,9 @@
             const topupDesc = document.getElementById('topup-desc');
 
             if (!histories || histories.length === 0) {
-                // まだ受け取っていない場合
                 bonusArea.classList.remove('hidden');
                 topupDesc.innerText = '初回登録ボーナス（500pt）がまだ受け取れます！';
             } else {
-                // すでに受け取り済みの場合
                 bonusArea.classList.add('hidden');
                 topupDesc.innerText = '⚠️ 初回登録ボーナスはすでに受取済みです。ポイントを追加したい場合は、以下の課金（または運営へのお問い合わせ）をご利用ください。';
             }
@@ -724,11 +718,9 @@
             document.getElementById('topup-modal').classList.toggle('hidden', !show); 
         }
 
-        // 🎁 初回ボーナスを1回だけ受け取る処理
         async function claimBonusPoints() {
             if (!currentUser) return;
 
-            // 二重受取防止の再確認
             const { data: histories } = await supabaseClient
                 .from('point_history')
                 .select('*')
@@ -741,12 +733,10 @@
                 return;
             }
 
-            // 現在のポイント取得
             const { data: profile } = await supabaseClient.from('profiles').select('points').eq('id', currentUser.id).single();
             const currentPoints = profile?.points ?? 0;
             const newPoints = currentPoints + 500;
 
-            // ポイント加算と履歴記録
             await supabaseClient.from('profiles').update({ points: newPoints }).eq('id', currentUser.id);
             await supabaseClient.from('point_history').insert([{ user_id: currentUser.id, amount: 500, reason: '新規登録ボーナス（500pt）' }]);
 
@@ -853,11 +843,15 @@
 
             container.innerHTML = '';
             for (const room of rooms) {
+                // 自分以外のユーザーID（相手のID）を正確に特定する
                 const partnerId = room.user1_id === currentUser.id ? room.user2_id : room.user1_id;
+                
+                // 相手のプロフィール情報を取得
                 let { data: partnerProfile } = await supabaseClient.from('profiles').select('display_name, faculty, grade, university').eq('id', partnerId).single();
 
                 const { data: lastMsg } = await supabaseClient.from('chat_messages').select('message, created_at').eq('room_id', room.id).order('created_at', { ascending: false }).limit(1).single();
 
+                // 相手の名前を正確に取得（プロフィール名 ＞ ルーム保存名 ＞ 相手の名前）
                 const partnerName = partnerProfile?.display_name || room.partner_name || 'チャット相手';
                 const previewText = lastMsg ? lastMsg.message : 'メッセージはまだありません';
 
